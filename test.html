@@ -1,0 +1,33 @@
+<!doctype html>
+
+<textarea id="code" rows=25 cols=80>
+int main(int argc, char **argv) {
+  puts("Hello, World!");
+  return 0;
+}
+</textarea>
+
+<p><input type=button onclick="go()" value="tokenize"></p>
+<textarea id="out" rows=25 cols=80>
+</textarea>
+
+<script>
+var exports = window;
+
+Object.prototype.error = function(s) {
+  console.log(s);
+}
+
+var go = function(){
+  var code = document.getElementById("code").value;
+  var out = document.getElementById("out")
+  out.value = "";
+  var t = tokenize_string(code);
+  for(var i = 0; i < 50; i++) {
+     out.value += t.get().value
+  }
+}
+
+</script>
+<script src="tokenizer.js"></script>
+<script src="parse.js"></script>
