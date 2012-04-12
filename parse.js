@@ -8,6 +8,8 @@ var token;
 var tokens;
 var token_nr;
 
+var operators = [';', ':'];
+
 var itself = function () {
     return this;
 };
@@ -75,24 +77,32 @@ var advance = function (id) {
     if (id && token.id !== id) {
 	token.error("Expected '" + id + "'.");
     }
-    t = tokens.get();
-	//token = symbol_table["(end)"];
+    t = {type: "whitespace"};
+    while(t.type == "whitespace") {
+      console.log(t)
+      t = tokens.get();
+    }
+    if(t.type=="(end)") {
+	token = symbol_table["(end)"];
+	return;
+    }
     v = t.value;
     a = t.type;
     if (a === "name") {
 	o = scope.find(v);
-    } else if (a === "operator") {
+    } else if (operators.indexOf(a) != -1) {
+        a = "operator";
 	o = symbol_table[v];
 	if (!o) {
 	    t.error("Unknown operator.");
 	}
-    } else if (a === "string" || a ===  "number") {
+    } else if (a === "string" || a ===  "int" || a == "hexint") {
 	o = symbol_table["(literal)"];
 	a = "literal";
     } else {
-	t.error("Unexpected token.");
+	t.error("Unexpected token," + a);
     }
-    console.log(token);
+
     token = Object.create(o);
     token.value = v;
     token.arity = a;
@@ -186,6 +196,7 @@ var constant = function (s, v) {
 };
 
 var infix = function (id, bp, led) {
+    operators.push(id);
     var s = symbol(id, bp);
     s.led = led || function (left) {
 	this.first = left;
@@ -197,6 +208,7 @@ var infix = function (id, bp, led) {
 };
 
 var infixr = function (id, bp, led) {
+    operators.push(id);
     var s = symbol(id, bp);
     s.led = led || function (left) {
 	this.first = left;

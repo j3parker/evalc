@@ -1,6 +1,5 @@
 <!doctype html>
 <meta charset="ascii">
-
 <textarea id="code" rows=25 cols=80>
 int main(int argc, char **argv) {
   puts("Hello, World!");
@@ -18,7 +17,7 @@ int main(int argc, char **argv) {
 <script>
 var exports = window;
 
-Object.prototype.error = function(s) {
+Object.prototype.error = function(s, t) {
   console.log(s);
 }
 
@@ -31,25 +30,28 @@ var go = function(){
   tokens = [];
   while(true) {
     var e = t.get()
+    out.value += JSON.stringify(e) + "\n";
     if(e.type != "whitespace") {
-     tokens.push(e);
      if(e.type == "(end)") { break; }
-     out.value += e.value + "\n";
+     tokens.push(e);
     }
   }
 }
 
+var tree;
 var onparse = function() {
+  console.log("parsing");
   var out = document.getElementById("parsed")
   out.value = "";
-  if(tokens.length == 0) {
+  /*if(tokens.length == 0) {
     out.value = "Please tokenize first";
     return;
-  }
+  }*/
   var i = 0;
-  out.value = parse({
-    get: function(){return tokens[i++];}
-  });
+  var code = document.getElementById("code").value;
+  tree = parse(tokenize_string(code));
+  out.value = JSON.stringify(tree,
+    ["value", "name", "first", "second", "third", "fourth", "arity"], '  ');
 }
 
 </script>
