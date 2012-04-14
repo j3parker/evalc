@@ -104,39 +104,38 @@ var tokenize = function(){
     ['09', 'name'],
   ];
 
-var change = function(c) {
-  var trans = table[state];
-  if(!trans) return;
-  for(var i = 0; i < trans.length; i++) {
-    var r = trans[i];
-    if(r[0].length == 1) {
-      if(c == r[0]) {
+  var change = function(c) {
+    var trans = table[state];
+    if(!trans) return;
+    for(var i = 0; i < trans.length; i++) {
+      var r = trans[i];
+      if(r[0].length == 1) {
+        if(c == r[0]) {
+          return r[1];
+        }
+      } else if(c >= r[0][0] && c <= r[0][1]) {
         return r[1];
       }
-    } else if(c >= r[0][0] && c <= r[0][1]) {
-      return r[1];
     }
   }
-}
 
-return {
-get: function() {
-       while(true) {
-         var c = this.peekchar();
-         if(typeof c == "undefined") { 
-           var r = make();
-           state = "(end)";
-           return r;
-         };
-         var newstate = change(c);
-         if(!newstate) {
-           if(finals[state]) {
-             return make();
+  return {
+    get: function() {
+      while(true) {
+        var c = this.peekchar();
+        if(typeof c == "undefined") { 
+          var r = make();
+          state = "(end)";
+          return r;
+        };
+        var newstate = change(c);
+        if(!newstate) {
+          if(finals[state]) {
+            return make();
           }
           this.error("Unexpected tokenizing fail: '" + c + "' in state '" + state + "'");
           return false;
         }
-         //console.log("State '" + state + "' -> '" + newstate + "'");
         state = newstate;
         curr += c;
         this.nextchar();
