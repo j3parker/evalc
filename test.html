@@ -203,17 +203,19 @@ var go = function(){
   var code = document.getElementById("code").value;
   var out = document.getElementById("out")
   out.value = "";
+  var S = "";
   var t = tokenize_string(code);
   tokens = [];
   while(true) {
     var e = t.get()
     if(!e) break;
-    out.value += JSON.stringify(e) + "\n";
+    S += JSON.stringify(e) + "\n";
     if(e.type != "whitespace") {
      if(e.type == "(end)") { break; }
      tokens.push(e);
     }
   }
+  out.value = S;
 }
 
 var tree;

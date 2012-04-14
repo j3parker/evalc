@@ -139,7 +139,7 @@ var tokenize = function(){
 	  this.error("Unexpected tokenizing fail: '" + c + "' in state '" + state + "'");
 	  return false;
 	}
-	console.log("State '" + state + "' -> '" + newstate + "'");
+	//console.log("State '" + state + "' -> '" + newstate + "'");
         state = newstate;
 	curr += c;
         this.nextchar();
