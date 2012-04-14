@@ -57,21 +57,23 @@ var tokenize = function(){
     ["_z", "name"],
     ["AZ", "name"],
     ["19", "int"],
-    ["\n ", "whitespace"],
+    ["\t ", "whitespace"],
     ["/", "/"],
   ];
 
 
   /* Includes crap control characters that shouldn't be here anyways */
-  table["whitespace"] = [["\n", " ", "whitespace"]];
+  table["whitespace"] = [["\t ", "whitespace"]];
 
   table["/"] = [['*', '/*'], ['/', '//']];
+  table['//'] = [[' .', '//'], ['0~', '//'], ['\n', 'whitespace']]
 
-  table['/*'] = [[' )', '/*'], ['+~', '/*'], ['*', '/**']];
-  table['/**'] = [['/', 'whitespace'], [' .', '/*'], ['0~', '/*']];
+  table['/*'] = [['\t)', '/*'], ['+~', '/*'], ['*', '/**']];
+  table['/**'] = [['/', 'whitespace'], ['\t.', '/*'], ['0~', '/*']];
 
-  table["stringseq"] = [ [" !", "stringseq"], ["#[", "stringseq"], 
-                         ["]~", "stringseq"], ['"', "string"] ]
+  table["stringseq"] = [['"', "string"],[" !", "stringseq"],["#[", "stringseq"],
+                         ["]~", "stringseq"],  ['\\', 'stringslash']]
+  table["stringslash"] = [[' ~', 'stringseq']]
 
   /*C11 A.1.7*/
   punctuators(table, 
@@ -134,9 +136,10 @@ var tokenize = function(){
 	  if(finals[state]) {
 	    return make();
 	  }
-	  this.error("Unexpected tokenizing fail: " + c + " in state " + state);
+	  this.error("Unexpected tokenizing fail: '" + c + "' in state '" + state + "'");
 	  return false;
 	}
+	console.log("State '" + state + "' -> '" + newstate + "'");
         state = newstate;
 	curr += c;
         this.nextchar();
