@@ -79,7 +79,6 @@ var advance = function (id) {
     }
     t = {type: "whitespace"};
     while(t.type == "whitespace") {
-      console.log(t)
       t = tokens.get();
     }
     if(t.type=="(end)") {
@@ -448,7 +447,7 @@ stmt("{", function () {
     return a;
 });
 
-stmt("var", function () {
+stmt("type", function () {
     var a = [], n, t;
     while (true) {
 	n = token;

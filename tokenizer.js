@@ -35,14 +35,14 @@ var tokenize = function(){
     for(var i = 0; i < ts.length; i++) {
       var t = ts[i];
       if(t.length == 1) {
-        table["(start)"].push([t, t, t]);
+        table["(start)"].push([t, t]);
       } else if(t.length == 2) {
         if(!schars[t[0]]) {
-          table["(start)"].push([t[0], t[0], t[0]]);
+          table["(start)"].push([t[0], t[0]]);
 	  schars[t[0]] = true;
 	} 
 	if(!table[t[0]]) { table[t[0]] = [] }
-	table[t[0]].push([t[1], t[1], t])
+	table[t[0]].push([t[1], t])
       } else {
         console.log("Bad: ", t);
       }
@@ -51,28 +51,27 @@ var tokenize = function(){
   }
 
   table["(start)"] = [
-    ["'", "'", "charseq"],
-    ['"', '"', "stringseq"],
-    ["0", "0", "zero"],
-    ["_", "z", "name"],
-    ["A", "Z", "name"],
-    ["1", "9", "int"],
-    ["\n", " ", "whitespace"],
-    ["/", "/", "/"],
+    ["'", "charseq"],
+    ['"', "stringseq"],
+    ["00", "zero"],
+    ["_z", "name"],
+    ["AZ", "name"],
+    ["19", "int"],
+    ["\n ", "whitespace"],
+    ["/", "/"],
   ];
 
 
   /* Includes crap control characters that shouldn't be here anyways */
   table["whitespace"] = [["\n", " ", "whitespace"]];
 
-  table["/"] = [['*', '*', '/*'], ['/', '/', '//']];
+  table["/"] = [['*', '/*'], ['/', '//']];
 
-  table['/*'] = [[' ', ')', '/*'], ['+', '~', '/*'], ['*', '*', '/**']];
-  table['/**'] = [['/', '/', 'whitespace'], [' ', '.', '/*'], ['0', '~', '/*']];
+  table['/*'] = [[' )', '/*'], ['+~', '/*'], ['*', '/**']];
+  table['/**'] = [['/', 'whitespace'], [' .', '/*'], ['0~', '/*']];
 
-  table["stringseq"] = [
-   [" ", "!", "stringseq"], ["#", "[", "stringseq"], ["]", "~", "stringseq"],
-   ['"', '"', "string"]]
+  table["stringseq"] = [ [" !", "stringseq"], ["#[", "stringseq"], 
+                         ["]~", "stringseq"], ['"', "string"] ]
 
   /*C11 A.1.7*/
   punctuators(table, 
@@ -83,27 +82,24 @@ var tokenize = function(){
      "=", "*=", "/=", "%=", "+=", "-=", "&=", "^=", "|=",
      ",", "#", "##"]); /*Ommitted: Digraphs, ..., <<=, >>=*/
 
-  table["int"] = [
-    ["0", "9", "int"],
-    // int suffixes: U, L
-  ];
-  table["octal"] = ["0", "7", "octal"];
+  table["int"] = [ ["09", "int"], /*int suffixes: U, L*/ ];
+  table["octal"] = [["07", "octal"]];
 
   table["zero"] = 
-   [['0', '7', "octal"],
-    ['x', 'x', "hexprefix"],
-    ['X', 'X', "hexprefix"]];
+   [['07', "octal"],
+    ['x', "hexprefix"],
+    ['X', "hexprefix"]];
 
   table["hexprefix"] = [
-    ['0', '9', 'hexint'],
-    ['a', 'f', 'hexint'],
-    ['A', 'F', 'hexint']];
+    ['09', 'hexint'],
+    ['af', 'hexint'],
+    ['AF', 'hexint']];
   table['hexint'] = table['hexprefix']
 
   table["name"] = [
-    ['_', 'z', 'name'],
-    ['A', 'Z', 'name'],
-    ['0', '9', 'name'],
+    ['_z', 'name'],
+    ['AZ', 'name'],
+    ['09', 'name'],
   ];
 
   var change = function(c) {
@@ -113,9 +109,13 @@ var tokenize = function(){
     //console.log(trans)
     for(var i = 0; i < trans.length; i++) {
       var r = trans[i];
-      if(c >= r[0] && c <= r[1]) {
+      if(r[0].length == 1) {
+        if(c == r[0]) {
+	  return r[1];
+	}
+      } else if(c >= r[0][0] && c <= r[0][1]) {
         //console.log("Rule " + r);
-        return r[2];
+        return r[1];
       }
     }
   }

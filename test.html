@@ -1,10 +1,8 @@
 <!doctype html>
 <meta charset="ascii">
 <textarea id="code" rows=25 cols=80>
-int main(int argc, char **argv) {
-  puts("Hello, World!");
-  return 0;
-}
+type abc = 3;
+type bat = "fly";
 </textarea>
 
 <p><input type=button onclick="go()" value="tokenize"></p>
@@ -13,6 +11,8 @@ int main(int argc, char **argv) {
 <p><input type=button onclick="onparse()" value="parse"></p>
 <textarea id="parsed" rows=25 cols=80>
 </textarea>
+
+<div id="tree"></div>
 
 <script>
 var exports = window;
@@ -52,8 +52,14 @@ var onparse = function() {
   tree = parse(tokenize_string(code));
   out.value = JSON.stringify(tree,
     ["value", "name", "first", "second", "third", "fourth", "arity"], '  ');
+
+  var pic = draw(tree);
+  var i = document.getElementById('tree');
+  i.appendChild(pic);
 }
 
 </script>
 <script src="tokenizer.js"></script>
 <script src="parse.js"></script>
+<script src="drawtree.js"></script>
+
