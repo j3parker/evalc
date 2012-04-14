@@ -289,8 +289,8 @@ infix("?", 20, function (left) {
 infixr("&&", 30);
 infixr("||", 30);
 
-infixr("===", 40);
-infixr("!==", 40);
+infixr("==", 40);
+infixr("!=", 40);
 infixr("<", 40);
 infixr("<=", 40);
 infixr(">", 40);
@@ -413,6 +413,7 @@ prefix("[", function () {
     return this;
 });
 
+/* Javascript object literals */
 prefix("{", function () {
     var a = [], n, v;
     if (token.id !== "}") {
@@ -439,6 +440,7 @@ prefix("{", function () {
 });
 
 
+/* block scope */
 stmt("{", function () {
     new_scope();
     var a = statements();

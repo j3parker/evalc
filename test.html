@@ -1,5 +1,18 @@
 <!doctype html>
 <meta charset="ascii">
+
+<style>
+  div#tree div {
+    border: 1px solid black;
+    margin: 1px;
+    display: inline-block;
+    text-align: center;
+  }
+  div.list, div#tree div.array > div {
+    display: block;
+  }
+</style>
+
 <textarea id="code" rows=25 cols=80>
 type abc = 3;
 type bat = "fly";
