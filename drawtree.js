@@ -1,8 +1,8 @@
+var C = function(x) {return document.createElement(x)}
+var A = function(a, b) {return a.appendChild(b)}
 ;(function(exports, undefined) {
 "use strict";
 var document = window.document
-var C = function(x) {return document.createElement(x)}
-var A = function(a, b) {return a.appendChild(b)}
 
 var draw = function(tree) {
   var d = C('div');
