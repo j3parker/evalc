@@ -11,56 +11,56 @@ var token_nr;
 var operators = [';', ':'];
 
 var itself = function () {
-    return this;
+  return this;
 };
 
 var original_scope = {
     define: function (n) {
-	var t = this.def[n.value];
-	if (typeof t === "object") {
-	    n.error(t.reserved ? "Already reserved." : "Already defined.");
-	}
-	this.def[n.value] = n;
-	n.reserved = false;
-	n.nud      = itself;
-	n.led      = null;
-	n.std      = null;
-	n.lbp      = 0;
-	n.scope    = scope;
-	return n;
+        var t = this.def[n.value];
+        if (typeof t === "object") {
+            n.error(t.reserved ? "Already reserved." : "Already defined.");
+        }
+        this.def[n.value] = n;
+        n.reserved = false;
+        n.nud      = itself;
+        n.led      = null;
+        n.std      = null;
+        n.lbp      = 0;
+        n.scope    = scope;
+        return n;
     },
     find: function (n) {
-	var e = this, o;
-	while (true) {
-	    o = e.def[n];
-	    if (o && typeof o !== 'function') {
-		return e.def[n];
-	    }
-	    e = e.parent;
-	    if (!e) {
-		o = symbol_table[n];
-		return o && typeof o !== 'function' ? o : symbol_table["(name)"];
-	    }
-	}
+        var e = this, o;
+        while (true) {
+            o = e.def[n];
+            if (o && typeof o !== 'function') {
+                return e.def[n];
+            }
+            e = e.parent;
+            if (!e) {
+                o = symbol_table[n];
+                return o && typeof o !== 'function' ? o : symbol_table["(name)"];
+            }
+        }
     },
     pop: function () {
-	scope = this.parent;
+        scope = this.parent;
     },
     reserve: function (n) {
-	if (n.arity !== "name" || n.reserved) {
-	    return;
-	}
-	var t = this.def[n.value];
-	if (t) {
-	    if (t.reserved) {
-		return;
-	    }
-	    if (t.arity === "name") {
-		n.error("Already defined.");
-	    }
-	}
-	this.def[n.value] = n;
-	n.reserved = true;
+        if (n.arity !== "name" || n.reserved) {
+            return;
+        }
+        var t = this.def[n.value];
+        if (t) {
+            if (t.reserved) {
+                return;
+            }
+            if (t.arity === "name") {
+                n.error("Already defined.");
+            }
+        }
+        this.def[n.value] = n;
+        n.reserved = true;
     }
 };
 
@@ -75,31 +75,31 @@ var new_scope = function () {
 var advance = function (id) {
     var a, o, t, v;
     if (id && token.id !== id) {
-	token.error("Expected '" + id + "'.");
+        token.error("Expected '" + id + "'.");
     }
     t = {type: "whitespace"};
     while(t.type == "whitespace") {
       t = tokens.get();
     }
     if(t.type=="(end)") {
-	token = symbol_table["(end)"];
-	return;
+        token = symbol_table["(end)"];
+        return;
     }
     v = t.value;
     a = t.type;
     if (a === "name") {
-	o = scope.find(v);
+        o = scope.find(v);
     } else if (operators.indexOf(a) != -1) {
         a = "operator";
-	o = symbol_table[v];
-	if (!o) {
-	    t.error("Unknown operator.");
-	}
+        o = symbol_table[v];
+        if (!o) {
+            t.error("Unknown operator.");
+        }
     } else if (a === "string" || a ===  "int" || a == "hexint") {
-	o = symbol_table["(literal)"];
-	a = "literal";
+        o = symbol_table["(literal)"];
+        a = "literal";
     } else {
-	t.error("Unexpected token," + a);
+        t.error("Unexpected token," + a);
     }
 
     token = Object.create(o);
@@ -114,9 +114,9 @@ var expression = function (rbp) {
     advance();
     left = t.nud();
     while (rbp < token.lbp) {
-	t = token;
-	advance();
-	left = t.led(left);
+        t = token;
+        advance();
+        left = t.led(left);
     }
     return left;
 };
@@ -125,13 +125,13 @@ var statement = function () {
     var n = token, v;
 
     if (n.std) {
-	advance();
-	scope.reserve(n);
-	return n.std();
+        advance();
+        scope.reserve(n);
+        return n.std();
     }
     v = expression(0);
     if (!v.assignment && v.id !== "(") {
-	v.error("Bad expression statement.");
+      v.error("Bad expression statement.");
     }
     advance(";");
     return v;
@@ -140,13 +140,13 @@ var statement = function () {
 var statements = function () {
     var a = [], s;
     while (true) {
-	if (token.id === "}" || token.id === "(end)") {
-	    break;
-	}
-	s = statement();
-	if (s) {
-	    a.push(s);
-	}
+        if (token.id === "}" || token.id === "(end)") {
+            break;
+        }
+        s = statement();
+        if (s) {
+            a.push(s);
+        }
     }
     return a.length === 0 ? null : a.length === 1 ? a[0] : a;
 };
@@ -159,10 +159,10 @@ var block = function () {
 
 var original_symbol = {
     nud: function () {
-	this.error("Undefined.");
+        this.error("Undefined.");
     },
     led: function (left) {
-	this.error("Missing operator.");
+        this.error("Missing operator.");
     }
 };
 
@@ -170,14 +170,14 @@ var symbol = function (id, bp) {
     var s = symbol_table[id];
     bp = bp || 0;
     if (s) {
-	if (bp >= s.lbp) {
-	    s.lbp = bp;
-	}
+        if (bp >= s.lbp) {
+            s.lbp = bp;
+        }
     } else {
-	s = Object.create(original_symbol);
-	s.id = s.value = id;
-	s.lbp = bp;
-	symbol_table[id] = s;
+        s = Object.create(original_symbol);
+        s.id = s.value = id;
+        s.lbp = bp;
+        symbol_table[id] = s;
     }
     return s;
 };
@@ -185,10 +185,10 @@ var symbol = function (id, bp) {
 var constant = function (s, v) {
     var x = symbol(s);
     x.nud = function () {
-	scope.reserve(this);
-	this.value = symbol_table[this.id].value;
-	this.arity = "literal";
-	return this;
+        scope.reserve(this);
+        this.value = symbol_table[this.id].value;
+        this.arity = "literal";
+        return this;
     };
     x.value = v;
     return x;
@@ -198,10 +198,10 @@ var infix = function (id, bp, led) {
     operators.push(id);
     var s = symbol(id, bp);
     s.led = led || function (left) {
-	this.first = left;
-	this.second = expression(bp);
-	this.arity = "binary";
-	return this;
+        this.first = left;
+        this.second = expression(bp);
+        this.arity = "binary";
+        return this;
     };
     return s;
 };
@@ -210,34 +210,34 @@ var infixr = function (id, bp, led) {
     operators.push(id);
     var s = symbol(id, bp);
     s.led = led || function (left) {
-	this.first = left;
-	this.second = expression(bp - 1);
-	this.arity = "binary";
-	return this;
+        this.first = left;
+        this.second = expression(bp - 1);
+        this.arity = "binary";
+        return this;
     };
     return s;
 };
 
 var assignment = function (id) {
     return infixr(id, 10, function (left) {
-	if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
-	    left.error("Bad lvalue.");
-	}
-	this.first = left;
-	this.second = expression(9);
-	this.assignment = true;
-	this.arity = "binary";
-	return this;
+        if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
+            left.error("Bad lvalue.");
+        }
+        this.first = left;
+        this.second = expression(9);
+        this.assignment = true;
+        this.arity = "binary";
+        return this;
     });
 };
 
 var prefix = function (id, nud) {
     var s = symbol(id);
     s.nud = nud || function () {
-	scope.reserve(this);
-	this.first = expression(70);
-	this.arity = "unary";
-	return this;
+        scope.reserve(this);
+        this.first = expression(70);
+        this.arity = "unary";
+        return this;
     };
     return s;
 };
@@ -261,9 +261,6 @@ symbol("else");
 constant("true", true);
 constant("false", false);
 constant("null", null);
-constant("pi", 3.141592653589793);
-constant("Object", {});
-constant("Array", []);
 
 symbol("(literal)").nud = itself;
 
@@ -302,18 +299,6 @@ infix("-", 50);
 infix("*", 60);
 infix("/", 60);
 
-infix(".", 80, function (left) {
-    this.first = left;
-    if (token.arity !== "name") {
-	token.error("Expected a property name.");
-    }
-    token.arity = "literal";
-    this.second = token;
-    this.arity = "binary";
-    advance();
-    return this;
-});
-
 infix("[", 80, function (left) {
     this.first = left;
     this.second = expression(0);
@@ -325,28 +310,28 @@ infix("[", 80, function (left) {
 infix("(", 80, function (left) {
     var a = [];
     if (left.id === "." || left.id === "[") {
-	this.arity = "ternary";
-	this.first = left.first;
-	this.second = left.second;
-	this.third = a;
+        this.arity = "ternary";
+        this.first = left.first;
+        this.second = left.second;
+        this.third = a;
     } else {
-	this.arity = "binary";
-	this.first = left;
-	this.second = a;
-	if ((left.arity !== "unary" || left.id !== "function") &&
-		left.arity !== "name" && left.id !== "(" &&
-		left.id !== "&&" && left.id !== "||" && left.id !== "?") {
-	    left.error("Expected a variable name.");
-	}
+        this.arity = "binary";
+        this.first = left;
+        this.second = a;
+        if ((left.arity !== "unary" || left.id !== "function") &&
+                left.arity !== "name" && left.id !== "(" &&
+                left.id !== "&&" && left.id !== "||" && left.id !== "?") {
+            left.error("Expected a variable name.");
+        }
     }
     if (token.id !== ")") {
-	while (true) {
-	    a.push(expression(0));
-	    if (token.id !== ",") {
-		break;
-	    }
-	    advance(",");
-	}
+        while (true) {
+            a.push(expression(0));
+            if (token.id !== ",") {
+                break;
+            }
+            advance(",");
+        }
     }
     advance(")");
     return this;
@@ -367,24 +352,24 @@ prefix("function", function () {
     var a = [];
     new_scope();
     if (token.arity === "name") {
-	scope.define(token);
-	this.name = token.value;
-	advance();
+        scope.define(token);
+        this.name = token.value;
+        advance();
     }
     advance("(");
     if (token.id !== ")") {
-	while (true) {
-	    if (token.arity !== "name") {
-		token.error("Expected a parameter name.");
-	    }
-	    scope.define(token);
-	    a.push(token);
-	    advance();
-	    if (token.id !== ",") {
-		break;
-	    }
-	    advance(",");
-	}
+        while (true) {
+            if (token.arity !== "name") {
+                token.error("Expected a parameter name.");
+            }
+            scope.define(token);
+            a.push(token);
+            advance();
+            if (token.id !== ",") {
+                break;
+            }
+            advance(",");
+        }
     }
     this.first = a;
     advance(")");
@@ -399,46 +384,19 @@ prefix("function", function () {
 prefix("[", function () {
     var a = [];
     if (token.id !== "]") {
-	while (true) {
-	    a.push(expression(0));
-	    if (token.id !== ",") {
-		break;
-	    }
-	    advance(",");
-	}
+        while (true) {
+            a.push(expression(0));
+            if (token.id !== ",") {
+                break;
+            }
+            advance(",");
+        }
     }
     advance("]");
     this.first = a;
     this.arity = "unary";
     return this;
 });
-
-/* Javascript object literals */
-prefix("{", function () {
-    var a = [], n, v;
-    if (token.id !== "}") {
-	while (true) {
-	    n = token;
-	    if (n.arity !== "name" && n.arity !== "literal") {
-		token.error("Bad property name.");
-	    }
-	    advance();
-	    advance(":");
-	    v = expression(0);
-	    v.key = n.value;
-	    a.push(v);
-	    if (token.id !== ",") {
-		break;
-	    }
-	    advance(",");
-	}
-    }
-    advance("}");
-    this.first = a;
-    this.arity = "unary";
-    return this;
-});
-
 
 /* block scope */
 stmt("{", function () {
@@ -452,24 +410,24 @@ stmt("{", function () {
 stmt("type", function () {
     var a = [], n, t;
     while (true) {
-	n = token;
-	if (n.arity !== "name") {
-	    n.error("Expected a new variable name.");
-	}
-	scope.define(n);
-	advance();
-	if (token.id === "=") {
-	    t = token;
-	    advance("=");
-	    t.first = n;
-	    t.second = expression(0);
-	    t.arity = "binary";
-	    a.push(t);
-	}
-	if (token.id !== ",") {
-	    break;
-	}
-	advance(",");
+        n = token;
+        if (n.arity !== "name") {
+            n.error("Expected a new variable name.");
+        }
+        scope.define(n);
+        advance();
+        if (token.id === "=") {
+            t = token;
+            advance("=");
+            t.first = n;
+            t.second = expression(0);
+            t.arity = "binary";
+            a.push(t);
+        }
+        if (token.id !== ",") {
+            break;
+        }
+        advance(",");
     }
     advance(";");
     return a.length === 0 ? null : a.length === 1 ? a[0] : a;
@@ -481,11 +439,11 @@ stmt("if", function () {
     advance(")");
     this.second = block();
     if (token.id === "else") {
-	scope.reserve(token);
-	advance("else");
-	this.third = token.id === "if" ? statement() : block();
+        scope.reserve(token);
+        advance("else");
+        this.third = token.id === "if" ? statement() : block();
     } else {
-	this.third = null;
+        this.third = null;
     }
     this.arity = "statement";
     return this;
@@ -493,21 +451,15 @@ stmt("if", function () {
 
 stmt("return", function () {
     if (token.id !== ";") {
-	this.first = expression(0);
+        this.first = expression(0);
     }
     advance(";");
-    if (token.id !== "}") {
-	token.error("Unreachable statement.");
-    }
     this.arity = "statement";
     return this;
 });
 
 stmt("break", function () {
     advance(";");
-    if (token.id !== "}") {
-	token.error("Unreachable statement.");
-    }
     this.arity = "statement";
     return this;
 });
