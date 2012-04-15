@@ -7,7 +7,7 @@
 
 
 var tokenize = function(){
-  var state =  "(start)"
+  var state =  "(filestart)"
   var finals = {
     name: true,
     zero: true,
@@ -15,7 +15,10 @@ var tokenize = function(){
     hexint: true,
     octal: true,
     whitespace: true,
+    newline: true,
     string: true,
+    preprocessor: true,
+    comment: true,
     "(end)": true,
   }
   var table = {}
@@ -50,6 +53,7 @@ var tokenize = function(){
     }
   }
 
+
   table["(start)"] = [
     ["'", "charseq"],
     ['"', "stringseq"],
@@ -57,19 +61,26 @@ var tokenize = function(){
     ["_z", "name"],
     ["AZ", "name"],
     ["19", "int"],
-    ["\t ", "whitespace"],
+    ["\t", "whitespace"],
+    [" ", "whitespace"],
+    ["\n", "newline"],
     ["/", "/"],
   ];
 
+  table["(filestart)"] = [["#", "preprocessor-inc"]].concat(table["(start)"])
 
-  /* Includes crap control characters that shouldn't be here anyways */
-  table["whitespace"] = [["\t ", "whitespace"]];
+  table["newline"] = [["#", "preprocessor-inc"], ['\n', "newline"]]
+  table["whitespace"] = [["\t", "whitespace"], [" ", "whitespace"]];
+
+  table['preprocessor-inc'] = [[" ~", "preprocessor-inc"],
+                               ["\t", "preprocessor-inc"],
+                               ["\n", "preprocessor"]],
 
   table["/"] = [['*', '/*'], ['/', '//']];
-  table['//'] = [[' .', '//'], ['0~', '//'], ['\n', 'whitespace']]
+  table['//'] = [[' .', '//'], ['0~', '//'], ['\n', 'comment']]
 
   table['/*'] = [['\t)', '/*'], ['+~', '/*'], ['*', '/**']];
-  table['/**'] = [['/', 'whitespace'], ['\t.', '/*'], ['0~', '/*']];
+  table['/**'] = [['/', 'comment'], ['\t.', '/*'], ['0~', '/*']];
 
   table["stringseq"] = [['"', "string"],[" !", "stringseq"],["#[", "stringseq"],
                         ["]~", "stringseq"],  ['\\', 'stringslash']]
