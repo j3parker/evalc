@@ -125,7 +125,7 @@ function asmtomips(asm) {
 
 	function dri(im, pc) {
 		var a = dai(im);
-		return (pc - a)/4;
+		return (a - pc - 4)/4;
 	}
 
 	var output = new Array();
@@ -269,6 +269,7 @@ function asmtomips(asm) {
 			break;
 		case "beq":
 			assert_type(inst, typeB);
+			console.log(dri(inst[4], cpc));
 			output.push(asm_i(opBEQ, dri(inst[4], cpc), +inst[2], +inst[3]));
 			break;
 		case "bgez":
