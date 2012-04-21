@@ -181,7 +181,7 @@ function step(vm) {
         case opBGEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) >= 0) vm.pc = imm(instr); break;
         case opBGEZAL: break;
         case opBLTZ: break;
-        case opBLTZAL: breal'
+        case opBLTZAL: break;
         default: throw {
                    PC: vm.pc,
                    message: "Invalid branch-like opcode.",
