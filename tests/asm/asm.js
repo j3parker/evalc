@@ -66,9 +66,9 @@ function asmtomips(asm) {
 			pc += 4;
 		}
 	}
-	for(idx in labels) {
+	/*for(idx in labels) {
 		console.log(idx + ":" + labels[idx]);
-	}
+	}*/
 
 	function assert_type(i, t) {
 		if(i[0] != t) {
@@ -77,7 +77,7 @@ function asmtomips(asm) {
 	}
 
 	function rs(x) {
-		return (x<<21)&0x3E000000;
+		return (x<<21)&0x03E00000;
 	}
 	function rt(x) {
 		return (x<<16)&0x001F0000;
@@ -370,5 +370,5 @@ function asmtomips(asm) {
 		cpc += 4;
 	}
 
-	return output;	
+	return output;
 }
