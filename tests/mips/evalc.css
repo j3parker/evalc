@@ -1,17 +1,20 @@
 #sub-left {
-  float: left;
+  position:absolute;
+  top:0;
+  left:0;
+  width:50%;
   height: 100%;
   border-right:1px solid gray;
-  width:50%;
-  overflow: hidden;
 }
 #sub-right {
-  float: right;
-  width: 49%;
-  overflow: hidden;
+  position:absolute;
+  top:0;
+  right:0;
+  width:49%;
 }
 #container {
   height: 95%;
   width: 100%;
   overflow: hidden;
+  position:relative;
 }
