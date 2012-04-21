@@ -8,7 +8,7 @@ function asmtomips(asm) {
 				return (null == /^[ \t]*$/.exec(x));
 			}
 		);
-	console.log(s);
+
 	var type0R = 0
 	    type1R = 1,
 	    type2R = 2,
@@ -40,7 +40,7 @@ function asmtomips(asm) {
 			/^[ \t]*([a-z0-9]+):$/
 		];
 
-	var matches = s.map(function(x) { return rxs.map(function(y) { return y.exec(x); }); }).map(
+	var asm_matches = s.map(function(x) { return rxs.map(function(y) { return y.exec(x); }); }).map(
 		function(v) {
 			for(var i=0; i<v.length; i++) {
 				if(v[i] != null) {
@@ -55,8 +55,8 @@ function asmtomips(asm) {
 
 	var labels = new Array();
 	var pc = 0;
-	for(idx in matches) {
-		line = matches[idx];
+	for(var idx=0;idx<asm_matches.length;idx++) {
+		line = asm_matches[idx];
 		if(line[0] == typeL) {
 			if(labels[line[1]] != undefined) {
 				throw "Label '" + line[1] + "' twice defined.";
@@ -129,9 +129,9 @@ function asmtomips(asm) {
 	}
 
 	var output = new Array();
-	for(idx in matches) {
+	for(var idx=0;idx<asm_matches.length;idx++) {
 		cpc = 0;
-		inst = matches[idx];
+		inst = asm_matches[idx];
 
 		if(inst == null) {
 			throw "Garbage in input.";
