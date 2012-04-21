@@ -47,6 +47,7 @@ function stateToId(x) {
 function update_ram(vm, x) {
   var hex = x.toString(16);
   var row = document.getElementById(hex);
+  if(row == null) return;
   var state = vm.RAMState[x];
   var here = vm.pc == x;
   row.innerHTML = '<th class="RAM"' + (here? 'id="here"':'') + '>0x' + hex + '</th><td class="RAM" id="' + stateToId(state) + '">' + (((state & RAM_UNINIT) || (state & RAM_UNALLOC)) ? '' : vm.RAM[x]) + '</td>';

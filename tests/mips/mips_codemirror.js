@@ -1,5 +1,11 @@
 CodeMirror.defineMode("mips", function(config, parserConfig) {
-  var keywords = ["add", "beq", "j", "jr"];
+  var keywords = ["add", "addi", "addiu", "addu", "and", "andi",
+                   "beq", "bgez", "bgezal", "bgtz", "blez", "bltz",
+                   "bltzal", "bne", "div", "divu", "j", "jal", "jr",
+                   "lb", "lui", "lw", "mfhi", "mflo", "mult", "multu",
+                   "noop", "or", "ori", "sb", "sll", "sllv", "slt",
+                   "slti", "sltiu", "sltu", "sra", "srl", "srlv", "sub",
+                   "subu", "sw", "syscall", "xor", "xori"];
   var labelre = new RegExp(/^[a-zA-Z][a-zA-Z0-9]*:/);
   return {
     startState: function(basecolumn) {
