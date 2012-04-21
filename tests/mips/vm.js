@@ -129,12 +129,12 @@ function step(vm) {
     case opADDI:
     case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
     case opANDI:
-    case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr) - 1; break;
+    case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr); break;
     case opBGEZ:
     case opBGTZ:
     case opBLEZ:
     case opBNE:
-    case opJ: vm.pc = (vm.pc & 0xF0000000) | (target(instr)/4); break; // TODO
+    case opJ: vm.pc = (vm.pc & 0xF0000000) | (target(instr)/4 - 1); break; // TODO
     case opJAL:
       vm.regs[31] = vm.pc + 1;
       vm.pc = (vm.pc & 0xF0000000) | target(instr);
@@ -200,8 +200,8 @@ function step(vm) {
         message: "Attempted write to protected code location.",
         fatal: true,
       }
-    if(vm.RAMState[loc] & RAM_UNALLOC && vm.config.heapAllocOnUnallocW)
-      vm.RAMState[loc] ^= RAM_UNALLOC;
+    if((vm.RAMState[loc] & RAM_UNALLOC) && vm.config.heapAllocOnUnallocW)
+      vm.RAMState[loc] = RAM_HEAP;
 
     vm.RAM[loc] = data;
     update_ram(vm, loc);

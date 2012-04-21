@@ -57,6 +57,10 @@ function asmtomips(asm) {
 	var pc = 0;
 	for(var idx=0;idx<asm_matches.length;idx++) {
 		line = asm_matches[idx];
+		if(line == null) {
+			throw "Malformed instruction or garbage in input at instruction " + idx + ".";
+		}
+
 		if(line[0] == typeL) {
 			if(labels[line[1]] != undefined) {
 				throw "Label '" + line[1] + "' twice defined.";
@@ -133,9 +137,6 @@ function asmtomips(asm) {
 		cpc = 0;
 		inst = asm_matches[idx];
 
-		if(inst == null) {
-			throw "Garbage in input.";
-		}
 
 		if(inst[0] == typeL) {
 			continue;
