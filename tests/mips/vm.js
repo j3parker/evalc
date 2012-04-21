@@ -30,7 +30,7 @@ function make_vm(ramsize) {
 function make_RAM_table(vm, target) {
   var html = '';
   for(var i = vm.RAM.length - 1; i >= 0; i--) {
-    hex = i.toString(16);
+    hex = (i*4).toString(16);
     html += '<tr id="' + hex + '"><th class="RAM">0x' + hex + '</th><td class="RAM" id="unalloc"></td></tr>';
   }
   target.innerHTML = html;
@@ -62,11 +62,15 @@ function tohex(n) {
 
 function update_ram(vm, x) {
   var hex = x.toString(16);
-  var row = document.getElementById(hex);
+  var disphex = (x*4).toString(16);
+  var row = document.getElementById(disphex);
   if(row == null) return;
   var state = vm.RAMState[x];
   var here = vm.pc == x;
-  row.innerHTML = '<th class="RAM"' + (here? 'id="here"':'') + '>0x' + hex + '</th><td class="RAM" id="' + stateToId(state) + '">' + (((state & RAM_UNINIT) || (state & RAM_UNALLOC)) ? '' : tohex(vm.RAM[x])) + '</td>';
+  var val;
+  if(state & RAM_CODE) val = disasm(vm.RAM[x]);
+  else val = tohex(vm.RAM[x]);
+  row.innerHTML = '<th class="RAM"' + (here? 'id="here"':'') + '>0x' + disphex + '</th><td class="RAM" id="' + stateToId(state) + '">' + (((state & RAM_UNINIT) || (state & RAM_UNALLOC)) ? '' : val) + '</td>';
 }
 
 function update_reg(vm, x) {
@@ -113,32 +117,32 @@ function step(vm) {
   switch(opcode(instr)) {
     case opARITH:
       switch(funct(instr)) {
-        case fADD:
-        case fADDU: vm.regs[rd(instr)] = vm.regs[rs(instr)] + vm.regs[rt(instr)]; break;
-        case fAND: vm.regs[rd(instr)] = vm.regs[rs(instr)] & vm.regs[rt(instr)]; break;
-        case fDIV:
-        case fDIVU:
+        case opADD:
+        case opADDU: vm.regs[rd(instr)] = vm.regs[rs(instr)] + vm.regs[rt(instr)]; break;
+        case opAND: vm.regs[rd(instr)] = vm.regs[rs(instr)] & vm.regs[rt(instr)]; break;
+        case opDIV:
+        case opDIVU:
           vm.lo = vm.regs[rs(instr)] / vm.regs[rt(instr)];
           vm.hi = vm.regs[rs(instr)] % vm.regs[rt(instr)];
           break;
-        case fJR: vm.pc = vm.regs[rs(instr)] - 1; break; // TODO: ???
-        case fMFHI: vm.regs[rd(instr)] = vm.hi; break;
-        case fMFLO: vm.regs[rd(instr)] = vm.lo; break;
-        case fMULT:
-        case fMULTU: vm.lo = vm.regs[rs(instr)] * vm.regs[rt(instr)]; break;
-        case fNOOP:  break;
-        case fOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] | vm.regs[rt(instr)]; break;
-        case fSLL: vm.regs[rd(instr)] = vm.regs[rt(instr)] << h(instr); break;
-        case fSLLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] << vm.regs[rs(instr)]; break;
-        case fSLT:
-        case fSLTU: vm.regs[rd(instr)] = vm.regs[rs(instr)] < vm.regs[rt(instr)]; break;
-        case fSRA: vm.regs[rd(instr)] = vm.regs[rt(instr)] >> h(instr); break;
-        case fSRL: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> h(instr); break;
-        case fSRLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> vm.regs[rs(instr)]; break;
-        case fSUB:
-        case fSUBU: vm.regs[rd(instr)] = vm.regs[rs(instr)] - vm.regs[rt(instr)]; break;
-        case fSYSCALL: break; /* TODO */
-        case fXOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] ^ vm.regs[rt(instr)]; break;
+        case opJR: vm.pc = vm.regs[rs(instr)] - 1; break; // TODO: ???
+        case opMFHI: vm.regs[rd(instr)] = vm.hi; break;
+        case opMFLO: vm.regs[rd(instr)] = vm.lo; break;
+        case opMULT:
+        case opMULTU: vm.lo = vm.regs[rs(instr)] * vm.regs[rt(instr)]; break;
+        case opNOOP:  break;
+        case opOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] | vm.regs[rt(instr)]; break;
+        case opSLL: vm.regs[rd(instr)] = vm.regs[rt(instr)] << h(instr); break;
+        case opSLLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] << vm.regs[rs(instr)]; break;
+        case opSLT:
+        case opSLTU: vm.regs[rd(instr)] = vm.regs[rs(instr)] < vm.regs[rt(instr)]; break;
+        case opSRA: vm.regs[rd(instr)] = vm.regs[rt(instr)] >> h(instr); break;
+        case opSRL: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> h(instr); break;
+        case opSRLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> vm.regs[rs(instr)]; break;
+        case opSUB:
+        case opSUBU: vm.regs[rd(instr)] = vm.regs[rs(instr)] - vm.regs[rt(instr)]; break;
+        case opSYSCALL: break; /* TODO */
+        case opXOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] ^ vm.regs[rt(instr)]; break;
         default:
           throw {
             PC: vm.pc,
@@ -148,11 +152,23 @@ function step(vm) {
           }
       }
       break;
+    case opBRANCH:
+      switch(rt(instr)) {
+        case opBGEZ:
+        case opBGEZAL:
+        case opBLTZ:
+        case opBLTZAL:
+        default: throw {
+                   PC: vm.pc,
+                   message: "Invalid branch-like opcode.",
+                   fatal: true,
+                 }
+      }
+      break;
     case opADDI:
     case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
     case opANDI:
     case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr); break;
-    case opBGEZ:
     case opBGTZ:
     case opBLEZ:
     case opBNE:

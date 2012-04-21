@@ -147,15 +147,15 @@ function asmtomips(asm) {
 		// R type:
 		case "add":
 			assert_type(inst, type3R);
-			output.push(asm_r(fADD, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opADD, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "addu":
 			assert_type(inst, type3R);
-			output.push(asm_r(fADDU, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opADDU, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "and":
 			assert_type(inst, type3R);
-			output.push(asm_r(fAND, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opAND, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "break":
 			assert_type(inst, type0R);
@@ -163,88 +163,88 @@ function asmtomips(asm) {
 			break;
 		case "div":
 			assert_type(inst, type2R);
-			output.push(asm_r(fDIV, 0, +inst[2], +inst[3]));
+			output.push(asm_r(opDIV, 0, +inst[2], +inst[3]));
 			break;
 		case "divu":
 			assert_type(inst, type2R);
-			output.push(asm_r(fDIVU, 0, +inst[2], +inst[3]));
+			output.push(asm_r(opDIVU, 0, +inst[2], +inst[3]));
 			break;
 		case "jalr":
 			assert_type(inst, type2R);
-			output.push(asm_r(fJALR, 0, +inst[2], +inst[3]));
+			output.push(asm_r(opJALR, 0, +inst[2], +inst[3]));
 			break;
 		case "jr":
 			assert_type(inst, type1R);
-			output.push(asm_r(fJR, 0, +inst[2]));
+			output.push(asm_r(opJR, 0, +inst[2]));
 			break;
 		case "mfhi":
 			assert_type(inst, type1R);
-			output.push(asm_r(fMFHI, +inst[2]));
+			output.push(asm_r(opMFHI, +inst[2]));
 			break;
 		case "mfhi":
 			assert_type(inst, type1R);
-			output.push(asm_r(fMFLO, +inst[2]));
+			output.push(asm_r(opMFLO, +inst[2]));
 			break;
 		case "mthi":
 			assert_type(inst, type1R);
-			output.push(asm_r(fMTHI, 0, +inst[2]));
+			output.push(asm_r(opMTHI, 0, +inst[2]));
 			break;
 		case "mtlo":
 			assert_type(inst, type1R);
-			output.push(asm_r(fMTLO, 0, +inst[2]));
+			output.push(asm_r(opMTLO, 0, +inst[2]));
 			break;
 		case "mult":
 			assert_type(inst, type2R);
-			output.push(asm_r(fMULT, 0, +inst[2], +inst[3]));
+			output.push(asm_r(opMULT, 0, +inst[2], +inst[3]));
 			break;
 		case "multu":
 			assert_type(inst, type2R);
-			output.push(asm_r(fMULTU, 0, +inst[2], +inst[3]));
+			output.push(asm_r(opMULTU, 0, +inst[2], +inst[3]));
 			break;
 		case "nor":
 			assert_type(inst, type3R);
-			output.push(asm_r(fNOR, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opNOR, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "or":
 			assert_type(inst, type3R);
-			output.push(asm_r(fOR, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opOR, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "sll":
 			//TODO: cocks
 			break;
 		case "sllv":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSLLV, +inst[2], +inst[4], +inst[3]));
+			output.push(asm_r(opSLLV, +inst[2], +inst[4], +inst[3]));
 			break;
 		case "slt":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSLT, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opSLT, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "sltu":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSLTU, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opSLTU, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "sra":
 			//TODO: cocks
 			break;
 		case "srav":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSRAV, +inst[2], +inst[4], +inst[3]));
+			output.push(asm_r(opSRAV, +inst[2], +inst[4], +inst[3]));
 			break;
 		case "srl":
 			//TODO: cocks
 			break;
 		case "srlv":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSRLV, +inst[2], +inst[4], +inst[3]));
+			output.push(asm_r(opSRLV, +inst[2], +inst[4], +inst[3]));
 			break;
 		case "sub":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSUB, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opSUB, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "subu":
 			assert_type(inst, type3R);
-			output.push(asm_r(fSUBU, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opSUBU, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "syscall":
 			assert_type(inst, type0R);
@@ -252,7 +252,7 @@ function asmtomips(asm) {
 			break;
 		case "xor":
 			assert_type(inst, type3R);
-			output.push(asm_r(fXOR, +inst[2], +inst[3], +inst[4]));
+			output.push(asm_r(opXOR, +inst[2], +inst[3], +inst[4]));
 			break;
 
 		// I type:
@@ -275,7 +275,7 @@ function asmtomips(asm) {
 			break;
 		case "bgez":
 			assert_type(inst, type2I);
-			output.push(asm_i(opBGEZ, dri(inst[3], cpc), +inst[2], 1));
+			output.push(asm_i(opBGEZ, dri(inst[3], cpc), +inst[2], opBGEZ));
 			break;
 		case "bgtz":
 			assert_type(inst, type2I);

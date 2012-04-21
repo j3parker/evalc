@@ -2,6 +2,7 @@
 <script src="json.js"></script>
 <script src="mips.js"></script>
 <script src="asm.js"></script>
+<script src="disasm.js"></script>
 <script src="vm.js"></script>
 <script src="mips_codemirror.js"></script>
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
@@ -38,7 +39,7 @@
 <script type="text/javascript">
 var editor = CodeMirror(document.getElementById('sub-left'), {
                         mode: "mips",
-                        value: "add $1, $0, $0\naddi $2, $0, 123\nloop: addi $1, $1, 1\nbeq $1, $2, exit\nj loop\nexit: jr $31" ,
+                        value: "add $1, $0, $0\naddi $2, $0, 6\nloop: addi $1, $1, 1\nsw $1, 32($0)\nbeq $1, $2, exit\nj loop\nexit: jr $31" ,
                         lineNumbers: true,
                         firstLineNumber: 0,
                         indentUnit: 0,
