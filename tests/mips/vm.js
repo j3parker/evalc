@@ -63,8 +63,10 @@ function step(vm) {
   function rt(x)     { return x&0x1F0000>>>16; }
   function rd(x)     { return x&0xF800>>>11; }
   function imm(x)    { return x&0xFFFF; }
-  function h(x)      { return x&0x7C0>>6; }
+  function h(x)      { return x&0x7C0>>>6; }
   function target(x) { return x&0x3FFFFFF; }
+  function opcode(x) { return x&0xFC000000>>26; }
+  function funct(x)  { return x&0x3F; }
   if(vm.config.faultOnPCEscape && !(vm.RAMState[vm.pc] & RAM_CODE)) 
     throw {
             PC: vm.pc,
@@ -96,7 +98,7 @@ function step(vm) {
         case fMFLO: vm.regs[rd(instr)] = vm.lo; break;
         case fMULT:
         case fMULTU: vm.lo = vm.regs[rs(instr)] * vm.regs[rt(instr)]; break;
-        case fNOOP: break;
+        case fNOOP: console.log("hey!"); break;
         case fOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] | vm.regs[rt(instr)]; break;
         case fSLL: vm.regs[rd(instr)] = vm.regs[rt(instr)] << h(instr); break;
         case fSLLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] << vm.regs[rs(instr)]; break;
