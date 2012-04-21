@@ -79,6 +79,11 @@ function step(vm) {
             message: "Attempted to load instruction from unallocated memory.",
             fatal: true,
     };
+  if(loc >= vm.RAM.length) throw {
+                            PC: vm.pc,
+                            message: "Attmpted to load code from non-existant memory at location " + loc.toString(16) + ".",
+                            fatal: true,
+                          }
   var data, loc;
   var write_mem = false;
   instr = vm.RAM[vm.pc];
@@ -98,7 +103,7 @@ function step(vm) {
         case fMFLO: vm.regs[rd(instr)] = vm.lo; break;
         case fMULT:
         case fMULTU: vm.lo = vm.regs[rs(instr)] * vm.regs[rt(instr)]; break;
-        case fNOOP: console.log("hey!"); break;
+        case fNOOP:  break;
         case fOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] | vm.regs[rt(instr)]; break;
         case fSLL: vm.regs[rd(instr)] = vm.regs[rt(instr)] << h(instr); break;
         case fSLLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] << vm.regs[rs(instr)]; break;
@@ -141,7 +146,13 @@ function step(vm) {
                            message: "Unaligned word read.",
                            fatal: true,
                          }
-      vm.regs[rt(instr)] = vm.RAM[rs(instr)+imm(instr)/4];
+      loc = rs(instr)+imm(instr)/4;
+      if(loc >= vm.RAM.length) throw {
+                                 PC: vm.pc,
+                                 message: "Attmpted to read from non-existant memory at location " + loc.toString(16) + ".",
+                                 fatal: true,
+                               }
+      vm.regs[rt(instr)] = vm.RAM[loc];
       break;
     case opORI:
     case opSB:
@@ -171,6 +182,11 @@ function step(vm) {
   update_ram(vm, oldpc);
   update_ram(vm, vm.pc);
   if(write_mem) {
+    if(loc >= vm.RAM.length) throw {
+                               PC: vm.pc,
+                               message: "Attmpted to write to non-existant memory at location " + loc.toString(16) + ".",
+                               fatal: true,
+                             }
     if(vm.RAMState[loc] & RAM_UNALLOC && vm.config.faultOnUnallocW)
       throw {
         PC: vm.pc,
