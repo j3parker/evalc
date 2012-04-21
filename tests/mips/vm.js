@@ -156,6 +156,7 @@ function step(vm) {
         fatal: true,
       }
   }
+  vm.regs[0] = 0;
   vm.pc += 1;
   update_ram(vm, oldpc);
   update_ram(vm, vm.pc);
