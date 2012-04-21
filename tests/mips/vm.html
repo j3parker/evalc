@@ -27,6 +27,8 @@
   <div style="overflow-y:scroll;">
   <table id="RAM" class="RAM">
   </table>
+  <table id="regs" class="regs">
+  </table>
   </div>
   <input type="text" style="width:100%; border: 1px solid black;"/>
   </div>
@@ -75,6 +77,7 @@ for(var i = 0; i < editor.lineCount(); i++) {
 }
 vm = make_vm(32);
 make_RAM_table(vm, document.getElementById('RAM'));
+make_reg_table(vm, document.getElementById('regs'));
 
 function do_step() {
   try { step(vm); }

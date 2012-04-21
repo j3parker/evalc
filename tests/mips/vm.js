@@ -36,6 +36,14 @@ function make_RAM_table(vm, target) {
   target.innerHTML = html;
 }
 
+function make_reg_table(vm, target) {
+  var html = '';
+  for(var i = vm.regs.length - 1; i >= 0; i--) {
+    html += '<tr id="r' + i + '"><th class="reg">$' + i + '</th><td class="reg"></td></tr>';
+  }
+  target.innerHTML = html;
+}
+
 function stateToId(x) {
   if(x & RAM_CODE)    return "code";
   if(x & RAM_STACK)   return "stack";
@@ -44,13 +52,27 @@ function stateToId(x) {
   return '';
 }
 
+function tohex(n) {
+  var hex = n.toString(16);
+  while(hex.length < 8) {
+    hex = "0" + hex;
+  }
+  return "0x" + hex;
+}
+
 function update_ram(vm, x) {
   var hex = x.toString(16);
   var row = document.getElementById(hex);
   if(row == null) return;
   var state = vm.RAMState[x];
   var here = vm.pc == x;
-  row.innerHTML = '<th class="RAM"' + (here? 'id="here"':'') + '>0x' + hex + '</th><td class="RAM" id="' + stateToId(state) + '">' + (((state & RAM_UNINIT) || (state & RAM_UNALLOC)) ? '' : vm.RAM[x]) + '</td>';
+  row.innerHTML = '<th class="RAM"' + (here? 'id="here"':'') + '>0x' + hex + '</th><td class="RAM" id="' + stateToId(state) + '">' + (((state & RAM_UNINIT) || (state & RAM_UNALLOC)) ? '' : tohex(vm.RAM[x])) + '</td>';
+}
+
+function update_reg(vm, x) {
+  var row = document.getElementById("r" + x);
+  if(row == null) return;
+  row.innerHTML = '<th class="reg">$' + x + '</th><td class="reg">' + tohex(vm.regs[x]) + '</td>';
 }
 
 function program_ram(vm, loc, op) {
@@ -205,5 +227,8 @@ function step(vm) {
 
     vm.RAM[loc] = data;
     update_ram(vm, loc);
+  }
+  for(var i=0;i<vm.regs.length;i++) {
+    update_reg(vm, i);
   }
 }
