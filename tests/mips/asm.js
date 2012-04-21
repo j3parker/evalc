@@ -35,7 +35,7 @@ function asmtomips(asm) {
 			// Branch
 			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*\$([0-9]+)[ \t]*,[ \t]*([a-zA-Z0-9]+)$/,
 			// Load/store
-			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*([0-9]+)[ \t]*\([ \t]*\$([0-9]+)[ \t]*\)$/,
+			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*([a-zA-Z0-9]+)[ \t]*\([ \t]*\$([0-9]+)[ \t]*\)$/,
 			// Label
 			/^[ \t]*([a-z0-9]+):$/
 		];
@@ -91,6 +91,19 @@ function asmtomips(asm) {
 	}
 
 	function asm_r(fun) {
+		switch(arguments.length) {
+		case 1:
+			return ((fun)&0x3F);
+		case 2:
+			return ((fun)&0x3F) | rd(arguments[1]);
+		case 3:
+			return ((fun)&0x3F) | rd(arguments[1]) | rs(arguments[2]);
+		case 4:
+			return ((fun)&0x3F) | rd(arguments[1]) | rs(arguments[2]) | rt(arguments[3]);
+		}
+	}
+
+	function asm_rs(fun, shamt) {
 		switch(arguments.length) {
 		case 1:
 			return ((fun)&0x3F);
