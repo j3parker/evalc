@@ -5,19 +5,28 @@
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
 <body>
 <p>parsing demo</p>
-<button onclick="parsec()">Parse!</button>
 </body>
 <script type="text/javascript">
 var editor = CodeMirror(document.body, {
                         value: "int main() {\n  return 0;\n}",
                         mode: "text/x-csrc",
-                        lineNumbers: true
+                        lineNumbers: true,
+                        onChange: parsec
                        });
 function parsec() {
-  document.getElementById('parse').innerHTML
-    = JSON.stringify(c.parse(editor.getValue()), null, '  ');
+  var result;
+  try { result = c.parse(editor.getValue()); }
+  catch (err) { result = err.message; }
+  var to = document.getElementById('parse');
+  if(to == null) return;
+  if(result != null)
+    to.innerHTML = JSON.stringify(result, null, '  ');
+  else 
+    to.innerHTML = "error";
 }
-
 </script>
 <pre id="parse">
 </pre>
+<script type="text/javascript">
+parsec();
+</script>

@@ -20,9 +20,11 @@
 "for"                 return 'FOR'
 "goto"                return 'GOTO'
 "if"                  return 'IF'
+"inline"              return 'INLINE'
 "int"                 return 'INT'
 "long"                return 'LONG'
 "register"            return 'REGISTER'
+"restrict"            return 'RESTRICT'
 "return"              return 'RETURN'
 "short"               return 'SHORT'
 "signed"              return 'SIGNED'
@@ -36,6 +38,8 @@
 "void"                return 'VOID'
 "volatile"            return 'VOLATILE'
 "while"               return 'WHILE'
+"_Bool"               return '_BOOL'
+"_Complex"            return '_COMPLEX'
 "..."                 return 'ELLIPSIS'
 ">>="                 return 'RIGHT_ASSIGN'
 "<<="                 return 'LEFT_ASSIGN'
@@ -101,6 +105,8 @@
 
 %% /* language grammar */
 
+/* A.2.1 Expressions */
+
 primary_expression
     : IDENTIFIER
     | CONSTANT
@@ -115,7 +121,7 @@ postfix_expression
         $$ = new Object();
         $$.node_type = 'unary*';
         $$.target = new Object();
-        $$.target.node_type = "+"
+        $$.target.node_type = "+";
         $$.target.targets = [$1, $3];
       }
     | postfix_expression '(' ')'
@@ -123,6 +129,7 @@ postfix_expression
         $$ = new Object();
         $$.node_type = "function_call";
         $$.func = $1;
+        $$.args = [];
       }
     | postfix_expression '(' argument_expression_list ')'
       {
@@ -415,19 +422,100 @@ expression
       }
     ;
 
+constant_expression
+    : conditional_expression
+    ;
+
+/* A.2.2 Declarations */
+
+declaration
+    : declaration_specifiers ';'
+      {
+        $$ = new Object();
+        $$.node_type = "decl";
+        $$.type = $1;
+      }
+    | declaration_specifiers init_declarator_list ';'
+      {
+        $$ = new Object();
+        $$.node_type = "decl";
+        $$.type = $1;
+        $$.decls = $2;
+      }
+    ;
+
+declaration_specifiers
+    : storage_class_specifier { $$ = [$1]; } 
+    | storage_class_specifier declaration_specifiers { $$ = [$1].concat($2); }
+    | type_specifier { $$ = [$1]; }
+    | type_specifier declaration_specifiers { $$ = [$1].concat($2); }
+    | type_qualifier { $$ = [$1]; }
+    | type_qualifier declaration_specifiers { $$ = [$1].concat($2); }
+    | function_specifier { $$ = [$1]; }
+    | function_specifier declaration_specifiers { $$ = [$1].concat($2); }
+    ;
+
+init_declarator_list
+    : init_declarator { $$ = [$1]; }
+    | init_declarator_list ',' init_declarator
+      {
+        $1.push($3);
+        $$ = $1;
+      }
+    ;
+
+init_declarator
+    : declarator
+      {
+        $$ = new Object();
+        $$.name = $1;
+      }
+    | declarator '=' initializer
+      {
+        $$ = new Object();
+        $$.name = $1;
+        $$.value = $3;
+      }
+    ;
+
+storage_class_specifier
+    : TYPEDEF
+    | EXTERN
+    | STATIC
+    | AUTO
+    | REGISTER
+    ;
+
+type_specifier
+    : VOID
+    | CHAR
+    | SHORT
+    | INT
+    | LONG
+    | FLOAT
+    | DOUBLE
+    | SIGNED
+    | UNSIGNED
+    | _BOOL
+    | _COMPLEX
+    | struct_or_union_specifier
+    | enum_specifier
+    //| typedef_name
+    ;
+
 struct_or_union_specifier
-    : struct_or_union IDENTIFIER '{' struct_declaration_list '}'
+    : struct_or_union '{' struct_declaration_list '}'
+      {
+        $$ = new Object();
+        $$.node_type = $1;
+        $$.decls = $3;
+      }
+    | struct_or_union IDENTIFIER '{' struct_declaration_list '}'
       {
         $$ = new Object();
         $$.node_type = $1;
         $$.name = $2;
         $$.decls = $4;
-      }
-    | struct_or_union '{' struct_declaration_list '}'
-      {
-        $$ = new Object();
-        $$.node_type = $1;
-        $$.decls = $3;
       }
     | struct_or_union IDENTIFIER
       {
@@ -435,6 +523,11 @@ struct_or_union_specifier
         $$.node_type = $1;
         $$.name = $2;
       }
+    ;
+
+struct_or_union
+    : STRUCT
+    | UNION
     ;
 
 struct_declaration_list
@@ -447,7 +540,26 @@ struct_declaration_list
     ;
 
 struct_declaration
-    : specifier_qualifier_list struct_declarator_list ';' /* TODO */
+    : specifier_qualifier_list struct_declarator_list ';'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO struct_declaration";
+      }
+    ;
+
+specifier_qualifier_list
+    : type_specifier specifier_qualifier_list
+      {
+        $$ = [$1];
+        $$.concat($2);
+      }
+    | type_specifier { $$ = [$1]; }
+    | type_qualifier specifier_qualifier_list
+      {
+        $$ = [$1];
+        $$.concat($2);
+      }
+    | type_qualifier { $$ = [$1]; }
     ;
 
 struct_declarator_list
@@ -461,97 +573,16 @@ struct_declarator_list
 
 struct_declarator
     : declarator
-    | ':' constant_expression /* TODO */
-    | declarator ':' constant_expression /* TODO */
-    ;
-
-constant_expression
-    : conditional_expression
-    ;
-
-declarator
-    : pointer direct_declarator /* TODO */
-    | direct_declarator
-    ;
-
-direct_declarator /* TODO */
-    : IDENTIFIER
-    | '(' declarator ')'
-    | direct_declarator '[' constant_expression ']'
-    | direct_declarator '[' ']'
-    | direct_declarator '(' parameter_type_list ')'
-    | direct_declarator '(' identifier_list ')'
-    | direct_declarator '(' ')'
-    ;
-
-identifier_list
-    : IDENTIFIER { $$ = [$1]; }
-    | identifier_list ',' IDENTIFIER
-      {
-        $1.push($3);
-        $$ = $1;
-      }
-    ;
-
-parameter_type_list /* TODO */
-    : parameter_list
-    | parameter_list ',' ELLIPSIS
-    ;
-
-parameter_list
-    : parameter_declaration { $$ = [$1]; }
-    | parameter_list ',' parameter_declaration
-      {
-        $1.push($3);
-        $$ = $1;
-      }
-    ;
-
-parameter_declaration /* TODO */
-    : declaration_specifiers declarator
-    | declaration_specifiers abstract_declarator
-    | declaration_specifiers
-    ;
-
-declaration_specifiers
-    : storage_class_specifier
-    | storage_class_specifier declaration_specifiers /* TODO */
-    | type_specifier
-    | type_specifier declaration_specifiers /* TODO */
-    | type_qualifier
-    | type_qualifier declaration_specifier /* TODO */
-    ;
-
-storage_class_specifier
-    : TYPEDEF
-    | EXTERN
-    | STATIC
-    | AUTO
-    | REGISTER
-    ;
-
-type_qualifier
-    : CONST
-    | VOLATILE
-    ;
-
-struct_or_union
-    : STRUCT
-    | UNION
-    ;
-
-enumerator
-    : IDENTIFIER /* TODO */
-    | IDENTIFIER '=' constant_expression
-    ;
-
-enumerator_list
-    : enumerator { $$ = [$1]; }
-    | enumerator_list ',' enumerator
-      {
-        $1.push($3);
-        $$ = $1;
-      }
+    | ':' constant_expression
+    {
+      $$ = new Object();
+      $$.node_type = "TODO struct_declarator1";
+    }
+    | declarator ':' constant_expression
+    {
+      $$ = new Object();
+      $$.node_type = "TODO struct_declarator2";
+    }
     ;
 
 enum_specifier
@@ -568,6 +599,19 @@ enum_specifier
         $$.name = $2;
         $$.list = $4;
       }
+    | ENUM '{' enumerator_list ',' '}'
+      {
+        $$ = new Object();
+        $$.node_type = "enum";
+        $$.list = $3;
+      }
+    | ENUM IDENTIFIER '{' enumerator_list ',' '}'
+      {
+        $$ = new Object();
+        $$.node_type = "enum";
+        $$.name = $2;
+        $$.list = $4;
+      }
     | ENUM IDENTIFIER
       {
         $$ = new Object();
@@ -576,56 +620,142 @@ enum_specifier
       }
     ;
 
-
-type_specifier
-    : VOID
-    | CHAR
-    | SHORT
-    | INT
-    | LONG
-    | FLOAT
-    | DOUBLE
-    | SIGNED
-    | UNSIGNED
-    | struct_or_union_specifier
-    | enum_specifier
+enumerator_list
+    : enumerator { $$ = [$1]; }
+    | enumerator_list ',' enumerator
+      {
+        $1.push($3);
+        $$ = $1;
+      }
     ;
 
-specifier_qualifier_list
-    : type_specifier specifier_qualifier_list /* TODO */
-    | type_specifier
-    | type_qualifier specifier_qualifier_list /* TODO */
-    | type_qualifier
+enumerator
+    : IDENTIFIER 
+      {
+        $$ = new Object();
+        $$.name = $1;
+      }
+    | IDENTIFIER '=' constant_expression
+      {
+        $$ = new Object();
+        $$.name = $1;
+        $$.data = $3;
+      }
     ;
 
-type_name /* TODO */
-    : specifier_qualifier_list
-    | specifier_qualifier_list abstract_declarator
+type_qualifier
+    : CONST
+    | RESTRICT
+    | VOLATILE
     ;
 
-abstract_declarator /* TODO */
-    : pointer
-    | direct_abstract_declarator
-    | pointer direct_abstract_declarator
+function_specifier
+    : INLINE
     ;
 
-direct_abstract_declarator /* TODO */
-    : '(' abstract_declarator ')'
-    | '[' ']'
-    | '[' constant_expression ']'
-    | direct_abstract_declarator '[' ']'
-    | direct_abstract_declarator '[' constant_expression ']'
-    | '(' ')'
-    | '(' parameter_type_list ')'
-    | direct_abstract_declarator '(' ')'
-    | direct_abstract_declarator '(' paramter_type_list ')'
+declarator
+    : pointer direct_declarator
+    {
+      $$ = new Object();
+      $$.node_type = "TODO declarator1";
+      $$.data1 = $1;
+      $$.data2 = $2;
+    }
+    | direct_declarator
     ;
 
-pointer /* TODO */
-    : '*'
-    | '*' type_qualifier_list
-    | '*' pointer
-    | '*' type_qualifier_list pointer
+direct_declarator
+    : IDENTIFIER
+    | '(' declarator ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator1";
+        $$.data1 = $2;
+      }
+    | direct_declarator '[' ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator2";
+        $$.data1 = $1;
+      }
+    | direct_declarator '[' type_qualifier_list ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator3";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    | direct_declarator '[' assignment_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator4";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    | direct_declarator '[' type_qualifier_list assignment_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator5";
+        $$.data1 = $1;
+        $$.data2 = $3;
+        $$.data3 = $4;
+      }
+    | direct_declarator '[' STATIC assignment_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator6";
+        $$.data1 = $1;
+        $$.data2 = $4;
+      }
+    | direct_declarator '[' STATIC type_qualifier_list assignment_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator7";
+        $$.data1 = $1;
+        $$.data2 = $4;
+        $$.data3 = $5;
+      }
+    | direct_declarator '[' type_qualifier_list STATIC assignment_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator8";
+        $$.data1 = $1;
+        $$.data2 = $3;
+        $$.data3 = $5;
+      }
+    | direct_declarator '[' '*' ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator9";
+        $$.data1 = $1;
+      }
+    | direct_declarator '(' parameter_type_list ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator10";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    | direct_declarator '(' ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator11";
+        $$.data1 = $1;
+      }
+    | direct_declarator '(' identifier_list ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_declarator12";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    ;
+
+pointer
+    : '*' { $$ = ['*']; }
+    | '*' type_qualifier_list { $$ = ['*'].concat($2); }
+    | '*' pointer { $$ = ['*'].concat($2); }
+    | '*' type_qualifier_list pointer { $$ = ['*'].concat($2, $3); }
     ;
 
 type_qualifier_list
@@ -637,9 +767,256 @@ type_qualifier_list
       }
     ;
 
-expression_statement
-    : ';' { $$ = []; }
-    | expression ';' 
+parameter_type_list
+    : parameter_list
+      {
+        $$ = new Object();
+        $$.node_type = "TODO parameter_type_list1";
+        $$.data1 = $1;
+      }
+    | parameter_list ',' ELLIPSIS
+      {
+        $$ = new Object();
+        $$.node_type = "TODO parameter_type_list2";
+        $$.data1 = $1;
+      }
+    ;
+
+parameter_list
+    : parameter_declaration { $$ = [$1]; }
+    | parameter_list ',' parameter_declaration
+      {
+        $1.push($3);
+        $$ = $1;
+      }
+    ;
+
+parameter_declaration
+    : declaration_specifiers declarator
+      {
+        $$ = new Object();
+        $$.node_type = "TODO parameter_declaration1";
+        $$.data1 = $1;
+        $$.data2 = $2;
+      }
+    | declaration_specifiers
+      {
+        $$ = new Object();
+        $$.node_type = "TODO parameter_declaration2";
+        $$.data1 = $1;
+      }
+    | declaration_specifiers abstract_declarator
+      {
+        $$ = new Object();
+        $$.node_type = "TODO parameter_declaration3";
+        $$.data1 = $1;
+        $$.data2 = $2;
+      }
+    ;
+
+identifier_list
+    : IDENTIFIER { $$ = [$1]; }
+    | identifier_list ',' IDENTIFIER
+      {
+        $1.push($3);
+        $$ = $1;
+      }
+    ;
+
+type_name
+    : specifier_qualifier_list
+      {
+        $$ = new Object();
+        $$.node_type = "TODO specifier_qualifier_list1";
+        $$.data1 = $1;
+      }
+    | specifier_qualifier_list abstract_declarator
+      {
+        $$ = new Object();
+        $$.node_type = "TODO specifier_qualifier_list2";
+        $$.data1 = $1;
+        $$.data2 = $2;
+      }
+    ;
+
+abstract_declarator
+    : pointer
+      {
+        $$ = new Object();
+        $$.node_type = "TODO abstract_declarator1";
+        $$.data1 = $1;
+      }
+    | direct_abstract_declarator
+      {
+        $$ = new Object();
+        $$.node_type = "TODO abstract_declarator2";
+        $$.data1 = $1;
+      }
+    | pointer direct_abstract_declarator
+      {
+        $$ = new Object();
+        $$.node_type = "TODO abstract_declarator3";
+        $$.data1 = $1;
+        $$.data2 = $2;
+      }
+    ;
+
+direct_abstract_declarator
+    : '(' abstract_declarator ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator1";
+        $$.data1 = $2;
+      }
+    | '[' ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator2";
+      }
+    | '[' constant_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator3";
+        $$.data1 = $2;
+      }
+    | direct_abstract_declarator '[' ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator4";
+        $$.data1 = $1;
+      }
+    | direct_abstract_declarator '[' assignment_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator5";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    | direct_abstract_declarator '[' '*' ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator6";
+        $$.data1 = $1;
+      }
+    | '(' ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator7";
+      }
+    | '(' parameter_type_list ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator8";
+        $$.data1 = $2;
+      }
+    | direct_abstract_declarator '(' ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator9";
+        $$.data1 = $1;
+      }
+    | direct_abstract_declarator '(' paramter_type_list ')'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO direct_abstract_declarator10";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    ;
+
+typedef_name
+    : IDENTIFIER
+    ;
+
+initializer
+    : assignment_expression
+    | '{' initializer_list '}'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO initializer2";
+        $$.data1 = $2;
+      }
+    | '{' initializer_list ',' '}'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO initializer3";
+        $$.data1 = $2;
+      }
+    ;
+
+initializer_list
+    : initializer
+      {
+        $$ = new Object();
+        $$.node_type = "TODO initializer_list1";
+        $$.data1 = $1;
+      }
+    | designation initializer
+      {
+        $$ = new Object();
+        $$.node_type = "TODO initializer_list2";
+        $$.data1 = $1;
+        $$.data2 = $2;
+      }
+    | initializer_list ',' initializer
+      {
+        $$ = new Object();
+        $$.node_type = "TODO initializer_list3";
+        $$.data1 = $1;
+        $$.data2 = $3;
+      }
+    | initializer_list ',' designation initializer
+      {
+        $$ = new Object();
+        $$.node_type = "TODO initializer_list4";
+        $$.data1 = $1;
+        $$.data2 = $3;
+        $$.data3 = $4;
+      }
+    ;
+
+designation
+    : designator_list '='
+      {
+        $$ = new Object();
+        $$.node_type = "TODO designation";
+        $$.data1 = $1;
+      }
+    ;
+
+designator_list
+    : designator { $$ = $1; }
+    | designator-list designator
+      {
+        $1.push($2);
+        $$ = $1;
+      }
+    ;
+
+designator
+    : '[' constant_expression ']'
+      {
+        $$ = new Object();
+        $$.node_type = "TODO designator1";
+        $$.data1 = $2;
+      }
+    | '.' IDENTIFIER
+      {
+        $$ = new Object();
+        $$.node_type = "TODO designator2";
+        $$.data2 = $2;
+      }
+    ;
+
+/* A.2.3 Statements */
+
+statement
+    : labeled_statement
+    | compound_statement
+    | expression_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
     ;
 
 labeled_statement
@@ -660,76 +1037,37 @@ labeled_statement
     | DEFAULT ':' statement
     ;
 
-initializer_list
-    : initializer { $$ = [$1]; }
-    | intializer_list ',' initializer
-      {
-        $1.push($3);
-        $$ = $1;
-      }
-    ;
-
-
-initializer /* TODO */
-    : assignment_expression
-    | '{' initializer_list '}'
-    | '{' initializer_list ',' '}'
-    ;
-
-init_declarator
-    : declarator
-    | declarator '=' initializer /* TODO */
-    ;
-
-init_declarator_list
-    : init_declarator { $$ = [$1]; }
-    | init_declarator_list ',' init_declarator
-      {
-        $1.push($3);
-        $$ = $1;
-      }
-    ;
-
-declaration
-    : declaration_specifiers ';'
-    | declaration_specifiers init_declarator_list ';' /* TODO */
-    ;
-
-declaration_list
-    : declaration { $$ = [$1]; }
-    | declaration_list declaration
-      {
-        $1.push($2);
-        $$ = $1;
-      }
-    ;
-
 compound_statement
     : '{' '}'
       {
         $$ = new Object();
         $$.node_type = "block";
       }
-    | '{' statement_list '}'
+    | '{' block_item_list '}'
       {
         $$ = new Object();
         $$.node_type = "block";
-        $$.statements = $2;
+        $$.contents = $2;
       }
-    | '{' declaration_list '}'
-      {
-        $$ = new Object();
-        $$.node_type = "block";
-        $$.decls = $2;
-      }
-    | '{' declaration_list statement_list '}'
-      {
-        $$ = new Object();
-        $$.node_type = "block";
-        $$.decls = $2;
-        $$.statements = $3;
-      }
+    ;
 
+block_item_list
+    : block_item { $$ = [$1]; }
+    | block_item_list block_item
+      {
+        $1.push($2);
+        $$ = $1;
+      }
+    ;
+
+block_item
+    : declaration
+    | statement
+    ;
+
+expression_statement
+    : ';' { $$ = []; }
+    | expression ';' 
     ;
 
 statement_list
@@ -798,6 +1136,23 @@ iteration_statement
         $$.action = $5;
         $$.body = $7;
       } 
+    | FOR '(' declaration expression_statement ')' statement
+      {
+        $$ = new Object();
+        $$.node_type = "for";
+        $$.init = $3;
+        $$.cont = $4;
+        $$.body = $6;
+      }
+    | FOR '(' declaration expression_statement expression')' statement
+      {
+        $$ = new Object();
+        $$.node_type = "for";
+        $$.init = $3;
+        $$.cond = $4;
+        $$.action = $5;
+        $$.body = $7;
+      }
     ;
 
 jump_statement
@@ -822,28 +1177,15 @@ jump_statement
       }
     ;
 
-statement
-    : labeled_statement
-    | compound_statement
-    | expression_statement
-    | selection_statement
-    | iteration_statement
-    | jump_statement
+/* A.2.4 External definitions */
 
-    ;
-
-function_definition
-    : declaration_specifiers declarator declaration_list compound_statement  
-    | declaration_specifiers declarator compound_statement
-    { 
-      $$ = new Object();
-      $$.node_type = "function_definition"
-      $$.return_type = $1;
-      $$.sig = $2;
-      $$.body = $3;
-    }
-    | declarator declaration_list compound_statement
-    | declarator compound_statement 
+translation_unit
+    : external_declaration { $$ = [$1]; }
+    | translation_unit external_declaration
+      {
+        $1.push($2);
+        $$ = $1;
+      }
     ;
 
 external_declaration
@@ -851,9 +1193,29 @@ external_declaration
     | declaration
     ;
 
-translation_unit
-    : external_declaration { $$ = [$1]; }
-    | translation_unit external_declaration
+function_definition
+    : declaration_specifiers declarator compound_statement
+      { 
+        $$ = new Object();
+        $$.node_type = "function_definition"
+        $$.return_type = $1;
+        $$.sig = $2;
+        $$.body = $3;
+      }
+    | declaration_specifiers declarator declaration_list compound_statement
+      { 
+        $$ = new Object();
+        $$.node_type = "TODO function_definition";
+        $$.return_type = $1;
+        $$.sig = $2;
+        $$.body = $4;
+        $$.data1 = $3;
+      }
+    ;
+
+declaration_list
+    : declaration { $$ = [$1]; }
+    | declaration_list declaration
       {
         $1.push($2);
         $$ = $1;

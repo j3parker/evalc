@@ -1,0 +1,76 @@
+<script src="codemirror/lib/codemirror.js"></script>
+<script src="json.js"></script>
+<script src="mips.js"></script>
+<script src="vm.js"></script>
+<script src="mips_codemirror.js"></script>
+<link rel="stylesheet" href="codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="vm.css">
+<link rel="stylesheet" href="evalc.css">
+<body>
+<div id="container">
+  <div id="sub-left">
+  </div>
+  <div id="sub-right">
+  <table class="legend">
+  <tr><th>Legend</th><th></th><th></th></tr>
+  <tr><td></td><td id="code">&nbsp;&nbsp;</td><td>Code</td></tr>
+  <tr><td></td><td id="stack">&nbsp;&nbsp;</td><td>Stack</td></tr>
+  <tr><td></td><td id="heap">&nbsp;&nbsp;</td><td>Heap</td></tr>
+  <tr><td></td><td id="unalloc">&nbsp;&nbsp;</td><td>Unallocated</td></tr>
+  </table>
+  <div style="overflow-y:scroll;">
+  <table id="RAM" class="RAM">
+  </table>
+  </div>
+  <input type="text" style="width:100%; border: 1px solid black;"/>
+  </div>
+</div>
+</body>
+
+<script type="text/javascript">
+var editor = CodeMirror(document.getElementById('sub-left'), {
+                        mode: "mips",
+                        value: "add $1, $0, $0\nadd $2, $0, 123\nloop: add $1, $1, 1\nbeq $1, $2, exit\nj loop\nexit: jr $31" ,
+                        lineNumbers: true,
+                        firstLineNumber: 0,
+                        indentUnit: 0,
+                        onChange: peek,
+                        autoClearEmptyLines: true,
+                       });
+var labelre = new RegExp(/^[a-z][a-zA-Z0-9]*:/);
+var maxlabelsize = 0;
+function max(a, b) { return a>b?a:b; }
+function toHex(d, padding) {
+  var hex = Number(d).toString(16);
+  padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+  while (hex.length < padding) {
+    hex = "0" + hex;
+  }
+  return "0x" + hex;
+}
+
+function peek() {
+  editor.setOption('onChange', null);
+  var lineNum = editor.getCursor().line;
+  var line = editor.getLine(lineNum);
+  var ch = line[editor.getCursor().ch - 1];
+  console.log(ch);
+  if(match = labelre.exec(line)) {
+    maxlabelsize = max(maxlabelsize, match[0].length + 1);
+  }
+  editor.indentLine(lineNum);
+  editor.setOption('indentUnit', maxlabelsize);
+  editor.setOption('onChange', peek);
+}
+
+for(var j = 0; j < 2; j++) {
+for(var i = 0; i < editor.lineCount(); i++) {
+  editor.setCursor(i,0);
+  peek();
+}
+}
+vm = make_vm(32);
+make_RAM_table(vm, document.getElementById('RAM'));
+</script>
+<pre id="asm">
+</pre>
