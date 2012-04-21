@@ -1,0 +1,22 @@
+table.RAM {
+  font-family:monospace;
+  width: 100%;
+  font-size: 8pt;
+  border:1px solid black;
+  border-collapse: collapse;
+}
+th.RAM {
+  font-weight: normal;
+  width:0px;
+  border-right: 1px solid black;
+  text-align: right;
+  padding-right: 5px;
+}
+td.RAM {
+  width: 100%;
+  padding-left: 10px;
+}
+#code    { background-color: #FFFFCC; }
+#stack   { background-color: #CCCCFF; }
+#unalloc { background-color: #DDDDDD; }
+#heap    { background-color: #DDFFDD; }
