@@ -121,7 +121,7 @@ function step(vm) {
       }
       break;
     case opADDI:
-    case opADDIU:
+    case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
     case opANDI:
     case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr) - 1; break;
     case opBGEZ:
@@ -130,9 +130,19 @@ function step(vm) {
     case opBNE:
     case opJ: vm.pc = (vm.pc & 0xF0000000) | target(instr); break; // TODO
     case opJAL:
+      vm.regs[31] = vm.pc + 1;
+      vm.pc = (vm.pc & 0xF0000000) | target(instr);
     case opLB:
-    case opLUI:
+    case opLUI: vm.regs[rt(instr)] = imm(instr) << 16; break;
     case opLW:
+      var offset = imm(instr);
+      if(offeset%4 != 0) throw {
+                           PC: vm.pc,
+                           message: "Unaligned word read.",
+                           fatal: true,
+                         }
+      vm.regs[rt(instr)] = vm.RAM[rs(instr)+imm(instr)/4];
+      break;
     case opORI:
     case opSB:
     case opSLTI:
