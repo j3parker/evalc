@@ -192,7 +192,7 @@ function step(vm) {
     case opADDI:
       /* eww */
       vm.regs[rt(instr)] =
-        tc32_to_untyped(vm.regs[rs(instr)]) + tc32_to_untyped(vm.regs[imm(instr)]);
+        tc32_to_untyped(vm.regs[rs(instr)]) + tc32_to_untyped(imm(instr));
       break;
     case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
     case opANDI: vm.regs[rt(instr)] = vm.regs[rs(instr)] & imm(instr); break;
