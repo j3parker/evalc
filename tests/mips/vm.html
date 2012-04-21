@@ -20,6 +20,8 @@
   <tr><td></td><td id="unalloc">&nbsp;&nbsp;</td><td>Unallocated</td></tr>
   </table>
   --!>
+  <button onclick="do_step()">Step</button>
+  <p id="error"></p>
   <div style="overflow-y:scroll;">
   <table id="RAM" class="RAM">
   </table>
@@ -55,8 +57,6 @@ function peek() {
   editor.setOption('onChange', null);
   var lineNum = editor.getCursor().line;
   var line = editor.getLine(lineNum);
-  var ch = line[editor.getCursor().ch - 1];
-  console.log(ch);
   if(match = labelre.exec(line)) {
     maxlabelsize = max(maxlabelsize, match[0].length + 1);
   }
@@ -73,6 +73,13 @@ for(var i = 0; i < editor.lineCount(); i++) {
 }
 vm = make_vm(32);
 make_RAM_table(vm, document.getElementById('RAM'));
+
+function do_step() {
+  try { step(vm); }
+  catch (err) {
+    document.getElementById('error').innerHTML = err.message;
+  }
+}
 </script>
 <pre id="asm">
 </pre>
