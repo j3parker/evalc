@@ -81,10 +81,10 @@ function step(vm) {
         case fSRA: vm.regs[rd(instr)] = vm.regs[rt(instr)] >> h(instr); break;
         case fSRL: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> h(instr); break;
         case fSRLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> vm.regs[rs(instr)]; break;
-        case SUB:
-        case SUBU: vm.regs[rd(instr)] = vm.regs[rs(instr)] - vm.regs[rt(instr)]; break;
-        case SYSCALL: break; /* TODO */
-        case XOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] ^ vm.regs[rt(instr)]; break;
+        case fSUB:
+        case fSUBU: vm.regs[rd(instr)] = vm.regs[rs(instr)] - vm.regs[rt(instr)]; break;
+        case fSYSCALL: break; /* TODO */
+        case fXOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] ^ vm.regs[rt(instr)]; break;
         default:
           throw {
             PC: vm.pc,
@@ -94,25 +94,25 @@ function step(vm) {
           }
       }
       break;
-    case ADDI:
-    case ADDIU:
-    case ANDI:
-    case BEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr) - 1; break;
-    case BGEZ:
-    case BGTZ:
-    case BLEZ:
-    case BNE:
-    case J: vm.pc = (vm.pc & 0xF0000000) | target(instr); break; // TODO
-    case JAL:
-    case LB:
-    case LUI:
-    case LW:
-    case ORI:
-    case SB:
-    case SLTI:
-    case SLTIU:
-    case SW:
-    case XORI:
+    case opADDI:
+    case opADDIU:
+    case opANDI:
+    case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr) - 1; break;
+    case opBGEZ:
+    case opBGTZ:
+    case opBLEZ:
+    case opBNE:
+    case opJ: vm.pc = (vm.pc & 0xF0000000) | target(instr); break; // TODO
+    case opJAL:
+    case opLB:
+    case opLUI:
+    case opLW:
+    case opORI:
+    case opSB:
+    case opSLTI:
+    case opSLTIU:
+    case opSW:
+    case opXORI:
     default:
       throw {
         PC: vm.pc,
