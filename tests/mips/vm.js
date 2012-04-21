@@ -84,6 +84,11 @@ function program_ram(vm, loc, op) {
   vm.RAMState[loc] = RAM_CODE;
 }
 
+function tc32_to_untyped(tc32) {
+  /* sorry */
+  return ((tc32 + Math.pow(2, 31)) % Math.pow(2, 32)) - Math.pow(2, 31);
+}
+
 function step(vm) {
   var oldpc = vm.pc;
   function rs(x)     { return (x&0x3E00000)>>>21; }
@@ -122,26 +127,45 @@ function step(vm) {
         case opAND: vm.regs[rd(instr)] = vm.regs[rs(instr)] & vm.regs[rt(instr)]; break;
         case opDIV:
         case opDIVU:
-          vm.lo = vm.regs[rs(instr)] / vm.regs[rt(instr)];
-          vm.hi = vm.regs[rs(instr)] % vm.regs[rt(instr)];
+          vm.lo = Math.floor(vm.regs[rs(instr)] / vm.regs[rt(instr)]) & 0xFFFFFFFF;
+          vm.hi = Math.floor(vm.regs[rs(instr)] % vm.regs[rt(instr)]) & 0xFFFFFFFF;
+          w
           break;
         case opJR: vm.pc = vm.regs[rs(instr)] - 1; break; // TODO: ???
         case opMFHI: vm.regs[rd(instr)] = vm.hi; break;
         case opMFLO: vm.regs[rd(instr)] = vm.lo; break;
         case opMULT:
-        case opMULTU: vm.lo = vm.regs[rs(instr)] * vm.regs[rt(instr)]; break;
+          /* more disgusting */
+          vm.hi = Math.floor((tc32_to_untyped(vm.regs[rs(instr)]) * tc32_to_untyped(vm.regs[rt(instr)]))
+                    / Math.pow(2, 32)) & 0xFFFFFFFF;
+          vm.lo = (tc32_to_untyped(vm.regs[rs(instr)]) * tc32_to_untyped(vm.regs[rt(instr)])) & 0xFFFFFFFF;
+          break;
+        case opMULTU:
+          /* disgusting */
+          vm.hi = Math.floor((vm.regs[rs(instr)] * vm.regs[rt(instr)]) / Math.pow(2, 32)) & 0xFFFFFFFF;
+          vm.lo = (vm.regs[rs(instr)] * vm.regs[rt(instr)]) & 0xFFFFFFFF;
+          break;
         case opNOOP:  break;
         case opOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] | vm.regs[rt(instr)]; break;
         case opSLL: vm.regs[rd(instr)] = vm.regs[rt(instr)] << h(instr); break;
         case opSLLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] << vm.regs[rs(instr)]; break;
         case opSLT:
+          vm.regs[rd(instr)] =
+            tc32_to_untyped(vm.regs[rs(instr)]) < tc32_to_untyped(vm.regs[rt(instr)]);
+          break;
         case opSLTU: vm.regs[rd(instr)] = vm.regs[rs(instr)] < vm.regs[rt(instr)]; break;
         case opSRA: vm.regs[rd(instr)] = vm.regs[rt(instr)] >> h(instr); break;
         case opSRL: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> h(instr); break;
         case opSRLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> vm.regs[rs(instr)]; break;
         case opSUB:
+          vm.regs[rd(instr)] =
+            tc32_to_untyped(vm.regs[rs(instr)]) - tc32_to_untyped(vm.regs[rt(instr)]);
+          break;
         case opSUBU: vm.regs[rd(instr)] = vm.regs[rs(instr)] - vm.regs[rt(instr)]; break;
-        case opSYSCALL: break; /* TODO */
+        case opSYSCALL:
+          /* assume exception handler at 0x80 */
+          vm.pc = 0x80/4 - 1;
+          break;
         case opXOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] ^ vm.regs[rt(instr)]; break;
         default:
           throw {
@@ -154,10 +178,10 @@ function step(vm) {
       break;
     case opBRANCH:
       switch(rt(instr)) {
-        case opBGEZ:
-        case opBGEZAL:
-        case opBLTZ:
-        case opBLTZAL:
+        case opBGEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) >= 0) vm.pc = imm(instr); break;
+        case opBGEZAL: break;
+        case opBLTZ: break;
+        case opBLTZAL: breal'
         default: throw {
                    PC: vm.pc,
                    message: "Invalid branch-like opcode.",
@@ -166,12 +190,16 @@ function step(vm) {
       }
       break;
     case opADDI:
+      /* eww */
+      vm.regs[rt(instr)] =
+        tc32_to_untyped(vm.regs[rs(instr)]) + tc32_to_untyped(vm.regs[imm(instr)]);
+      break;
     case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
-    case opANDI:
+    case opANDI: vm.regs[rt(instr)] = vm.regs[rs(instr)] & imm(instr); break;
     case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr); break;
-    case opBGTZ:
-    case opBLEZ:
-    case opBNE:
+    case opBGTZ: if(tc32_to_untyped(vm.regs[rs(instr)]) > 0) vm.pc = imm(instr); break;
+    case opBLEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) < 0) vm.pc = imm(instr); break;
+    case opBNE: if(vm.regs[rs(instr)] != vm.regs[rt(instr)]) vm.pc = imm(instr); break;
     case opJ: vm.pc = (vm.pc & 0xF0000000) | (target(instr)/4 - 1); break; // TODO
     case opJAL:
       vm.regs[31] = vm.pc + 1;
