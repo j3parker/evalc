@@ -201,6 +201,9 @@ function asmtomips(asm) {
 			assert_type(inst, type2R);
 			output.push(asm_r(fMULTU, 0, +inst[2], +inst[3]));
 			break;
+		case "noop":
+			assert_type(inst, type0R);
+			output.push(asm_r(opNOOP));
 		case "nor":
 			assert_type(inst, type3R);
 			output.push(asm_r(fNOR, +inst[2], +inst[3], +inst[4]));

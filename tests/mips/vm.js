@@ -80,6 +80,11 @@ function program_ram(vm, loc, op) {
   vm.RAMState[loc] = RAM_CODE;
 }
 
+function tc32_to_untyped(tc32) {
+  /* sorry */
+  return ((tc32 + Math.pow(2, 31)) % Math.pow(2, 32)) - Math.pow(2, 31);
+}
+
 function step(vm) {
   var oldpc = vm.pc;
   function rs(x)     { return (x&0x3E00000)>>>21; }
@@ -118,26 +123,44 @@ function step(vm) {
         case fAND: vm.regs[rd(instr)] = vm.regs[rs(instr)] & vm.regs[rt(instr)]; break;
         case fDIV:
         case fDIVU:
-          vm.lo = vm.regs[rs(instr)] / vm.regs[rt(instr)];
-          vm.hi = vm.regs[rs(instr)] % vm.regs[rt(instr)];
+          vm.lo = Math.floor(vm.regs[rs(instr)] / vm.regs[rt(instr)]) & 0xFFFFFFFF;
+          vm.hi = Math.floor(vm.regs[rs(instr)] % vm.regs[rt(instr)]) & 0xFFFFFFFF;
           break;
         case fJR: vm.pc = vm.regs[rs(instr)] - 1; break; // TODO: ???
         case fMFHI: vm.regs[rd(instr)] = vm.hi; break;
         case fMFLO: vm.regs[rd(instr)] = vm.lo; break;
         case fMULT:
-        case fMULTU: vm.lo = vm.regs[rs(instr)] * vm.regs[rt(instr)]; break;
+          /* more disgusting */
+          vm.hi = Math.floor((tc32_to_untyped(vm.regs[rs(instr)]) * tc32_to_untyped(vm.regs[rt(instr)]))
+                    / Math.pow(2, 32)) & 0xFFFFFFFF;
+          vm.lo = (tc32_to_untyped(vm.regs[rs(instr)]) * tc32_to_untyped(vm.regs[rt(instr)])) & 0xFFFFFFFF;
+          break;
+        case fMULTU:
+          /* disgusting */
+          vm.hi = Math.floor((vm.regs[rs(instr)] * vm.regs[rt(instr)]) / Math.pow(2, 32)) & 0xFFFFFFFF;
+          vm.lo = (vm.regs[rs(instr)] * vm.regs[rt(instr)]) & 0xFFFFFFFF;
+          break;
         case fNOOP:  break;
         case fOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] | vm.regs[rt(instr)]; break;
         case fSLL: vm.regs[rd(instr)] = vm.regs[rt(instr)] << h(instr); break;
         case fSLLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] << vm.regs[rs(instr)]; break;
         case fSLT:
+          vm.regs[rd(instr)] =
+            tc32_to_untyped(vm.regs[rs(instr)]) < tc32_to_untyped(vm.regs[rt(instr)]);
+          break;
         case fSLTU: vm.regs[rd(instr)] = vm.regs[rs(instr)] < vm.regs[rt(instr)]; break;
         case fSRA: vm.regs[rd(instr)] = vm.regs[rt(instr)] >> h(instr); break;
         case fSRL: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> h(instr); break;
         case fSRLV: vm.regs[rd(instr)] = vm.regs[rt(instr)] >>> vm.regs[rs(instr)]; break;
         case fSUB:
+          vm.regs[rd(instr)] =
+            tc32_to_untyped(vm.regs[rs(instr)]) - tc32_to_untyped(vm.regs[rt(instr)]);
+          break;
         case fSUBU: vm.regs[rd(instr)] = vm.regs[rs(instr)] - vm.regs[rt(instr)]; break;
-        case fSYSCALL: break; /* TODO */
+        case fSYSCALL:
+          /* assume exception handler at 0x80 */
+          vm.pc = 0x80/4 - 1;
+          break;
         case fXOR: vm.regs[rd(instr)] = vm.regs[rs(instr)] ^ vm.regs[rt(instr)]; break;
         default:
           throw {
@@ -149,13 +172,17 @@ function step(vm) {
       }
       break;
     case opADDI:
+      /* eww */
+      vm.regs[rt(instr)] =
+        tc32_to_untyped(vm.regs[rs(instr)]) + tc32_to_untyped(vm.regs[imm(instr)]);
+      break;
     case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
-    case opANDI:
+    case opANDI: vm.regs[rt(instr)] = vm.regs[rs(instr)] & imm(instr); break;
     case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr); break;
-    case opBGEZ:
-    case opBGTZ:
-    case opBLEZ:
-    case opBNE:
+    case opBGEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) >= 0) vm.pc = imm(instr); break;
+    case opBGTZ: if(tc32_to_untyped(vm.regs[rs(instr)]) > 0) vm.pc = imm(instr); break;
+    case opBLEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) < 0) vm.pc = imm(instr); break;
+    case opBNE: if(vm.regs[rs(instr)] != vm.regs[rt(instr)]) vm.pc = imm(instr); break;
     case opJ: vm.pc = (vm.pc & 0xF0000000) | (target(instr)/4 - 1); break; // TODO
     case opJAL:
       vm.regs[31] = vm.pc + 1;
