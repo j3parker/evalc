@@ -84,9 +84,17 @@ function program_ram(vm, loc, op) {
   vm.RAMState[loc] = RAM_CODE;
 }
 
-function tc32_to_untyped(tc32) {
+function tcx_to_untyped(tcx, x) {
   /* sorry */
-  return ((tc32 + Math.pow(2, 31)) % Math.pow(2, 32)) - Math.pow(2, 31);
+  return ((tcx + Math.pow(2, x-1)) % Math.pow(2, x)) - Math.pow(2, x-1);
+}
+
+function tc32_to_untyped(tc32) {
+  return tcx_to_untyped(tc32, 32);
+}
+
+function tc16_to_untyped(tc16) {
+  return tcx_to_untyped(tc16, 16);
 }
 
 function step(vm) {
@@ -94,7 +102,7 @@ function step(vm) {
   function rs(x)     { return (x&0x3E00000)>>>21; }
   function rt(x)     { return (x&0x1F0000)>>>16; }
   function rd(x)     { return (x&0xF800)>>>11; }
-  function imm(x)    { return (x&0xFFFF); }
+  function imm(x)    { return tc16_to_untyped(x&0xFFFF); }
   function h(x)      { return (x&0x7C0)>>>6; }
   function target(x) { return (x&0x3FFFFFF); }
   function opcode(x) { return (x&0xFC000000)>>>26; }
