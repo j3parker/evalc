@@ -20,7 +20,7 @@ function disasm(instr) {
         case opMFLO:    return "mflo $" + rd(instr);
         case opMULT:    return "mult $" + rs(intsr) + ", $" + rt(instr);
         case opMULTI:   return "multu $" + rs(intsr) + ", $" + rt(instr);
-        case opNOOP:    return "noop ";
+        case opNOOP:    return "noop";
         case opSLL:     return "sll $" + rd(instr) + ", $" + rt(instr) + ", " + h(instr);
         case opSLLV:    return "sslv $" + rd(instr) + ", $" + rt(instr) + ", $" + rs(instr);
         case opSLT:     return "slt $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
@@ -38,25 +38,25 @@ function disasm(instr) {
     case opBRANCH:
       switch(rt(instr)) {
         case opBGEZ:   return "bgez $" + rs(instr) + ", 0x" + imm(instr).toString(16);
-        case opBGEZAL: return "bgezal ";
-        case opBLTZ:   return "bltz ";
-        case opBLTZAL: return "bltzal ";
+        case opBGEZAL: return "bgezal $" + rs(instr) + ", 0x" + imm(instr).toString(16);
+        case opBLTZ:   return "bltz $" + rs(instr) + ", 0x" + imm(instr).toString(16);
+        case opBLTZAL: return "bltzal $" + rs(instr) + ", 0x" + imm(instr).toString(16);
         default:       return "???";
       }
       break;
     case opADDI:   return "addi $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opANDI:   return "andi $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opBEQ:    return "beq $" + rs(instr) + ", $" + rt(instr) + ", 0x" + imm(instr).toString(16);
-    case opBGTZ:   return "bgtz $";
-    case opBLEZ:   return "blez $";
-    case opBNE:    return "bne $";
+    case opBGTZ:   return "bgtz $" + rs(instr) + ", 0x" + imm(instr).toString(16);
+    case opBLEZ:   return "blez $" + rs(instr) + ", 0x" + imm(instr).toString(16);
+    case opBNE:    return "bne $" + rs(instr) + ", $" + rt(instr) + ", 0x" + imm(instr).toString(16);
     case opJ:      return "j 0x" + target(instr).toString(16);
-    case opJAL:    return "jal $";
-    case opLB:     return "lb $";
-    case opLUI:    return "lui $";
-    case opLW:     return "lw $";
+    case opJAL:    return "jal 0x" + target(instr).toString(16);
+    case opLB:     return "lb $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
+    case opLUI:    return "lui $" + rt(instr) + ", 0x" + imm(instr).toString(16);
+    case opLW:     return "lw $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
     case opORI:    return "ori $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
-    case opSB:     return "sb $";
+    case opSB:     return "sb $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
     case opSLTI:   return "slti $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opSLTIU:  return "sltiu $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opSW:     return "sw $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
