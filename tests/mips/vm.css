@@ -16,8 +16,8 @@ td.RAM {
   width: 100%;
   padding-left: 10px;
 }
-#code    { background-color: #FFFFDD; }
-#stack   { background-color: #DDDDFF; }
-#unalloc { background-color: #DDDDDD; }
-#heap    { background-color: #DDFFDD; }
-#here    { background-color: #FFDDDD; }
+#code    { background-color: #FFFFCC; }
+#stack   { background-color: #CCCCFF; }
+#unalloc { background-color: #CCCCCC; }
+#heap    { background-color: #CCFFCC; }
+#here    { background-color: #FFCCCC; }
