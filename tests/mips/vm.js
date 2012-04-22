@@ -127,6 +127,7 @@ function step(vm) {
   var data, loc;
   var write_mem = false;
   instr = vm.RAM[vm.pc];
+  vm.pc += 1;
   switch(opcode(instr)) {
     case opARITH:
       switch(funct(instr)) {
@@ -186,7 +187,7 @@ function step(vm) {
       break;
     case opBRANCH:
       switch(rt(instr)) {
-        case opBGEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) >= 0) vm.pc = imm(instr); break;
+        case opBGEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) >= 0) vm.pc += imm(instr); break;
         case opBGEZAL: break;
         case opBLTZ: break;
         case opBLTZAL: break;
@@ -204,10 +205,10 @@ function step(vm) {
       break;
     case opADDIU: vm.regs[rt(instr)] = vm.regs[rs(instr)] + imm(instr); break;
     case opANDI: vm.regs[rt(instr)] = vm.regs[rs(instr)] & imm(instr); break;
-    case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc = imm(instr); break;
-    case opBGTZ: if(tc32_to_untyped(vm.regs[rs(instr)]) > 0) vm.pc = imm(instr); break;
-    case opBLEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) < 0) vm.pc = imm(instr); break;
-    case opBNE: if(vm.regs[rs(instr)] != vm.regs[rt(instr)]) vm.pc = imm(instr); break;
+    case opBEQ: if(vm.regs[rs(instr)] == vm.regs[rt(instr)]) vm.pc += imm(instr); break;
+    case opBGTZ: if(tc32_to_untyped(vm.regs[rs(instr)]) > 0) vm.pc += imm(instr); break;
+    case opBLEZ: if(tc32_to_untyped(vm.regs[rs(instr)]) < 0) vm.pc += imm(instr); break;
+    case opBNE: if(vm.regs[rs(instr)] != vm.regs[rt(instr)]) vm.pc += imm(instr); break;
     case opJ: vm.pc = (vm.pc & 0xF0000000) | (target(instr)/4 - 1); break; // TODO
     case opJAL:
       vm.regs[31] = vm.pc + 1;
@@ -253,7 +254,6 @@ function step(vm) {
       }
   }
   vm.regs[0] = 0;
-  vm.pc += 1;
   update_ram(vm, oldpc);
   update_ram(vm, vm.pc);
   if(write_mem) {

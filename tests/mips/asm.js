@@ -142,12 +142,12 @@ function asmtomips(asm) {
 
 	function dri(im, pc) {
 		var a = dai(im);
-		return a - (pc/4);
+		return a - pc/4 - 1;
 	}
 
 	var output = new Array();
+	cpc = 0;
 	for(var idx=0;idx<asm_matches.length;idx++) {
-		cpc = 0;
 		inst = asm_matches[idx];
 
 
