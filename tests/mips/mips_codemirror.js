@@ -53,13 +53,6 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
       stream.next();
       
     },
-
-    indent: function(state, textAfter) {
-      if(match = labelre.exec(textAfter)) {
-        return config.indentUnit - match[0].length - 1;
-      }
-      else return config.indentUnit;
-    }
   }
 });
 

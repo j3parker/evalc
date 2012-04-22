@@ -60,6 +60,7 @@ function disasm(instr) {
     case opLUI:    return "lui $" + rt(instr) + ", 0x" + imm(instr).toString(16);
     case opLW:     return "lw $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
     case opORI:    return "ori $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
+    case opPUTC:   return "putc '" + String.fromCharCode(imm(instr)) + "'";
     case opSB:     return "sb $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
     case opSLTI:   return "slti $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opSLTIU:  return "sltiu $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);

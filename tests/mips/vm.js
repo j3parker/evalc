@@ -3,7 +3,10 @@ var RAM_CODE    = 0x01,
     RAM_STACK   = 0x02,
     RAM_HEAP    = 0x04,
     RAM_UNALLOC = 0x08,
-    RAM_UNINIT  = 0x10;
+    RAM_UNINIT  = 0x10,
+
+    VM_DEVICE_START     = 0xFFFF0000,
+    VM_CONSOLE_CHAR_OUT = 0xFFFF0000;
 
 function make_vm(ramsize) {
   var i = 0,
@@ -245,6 +248,11 @@ function step(vm, n) {
         vm.regs[rtx] = vm.RAM[loc];
         break;
       case opORI:
+      case opPUTC:
+        loc = VM_CONSOLE_CHAR_OUT;
+        data = immx;
+        write_mem = true; 
+        break;
       case opSB:
       case opSLTI:
       case opSLTIU:
@@ -269,38 +277,58 @@ function step(vm, n) {
           fatal: true
         };
     }
-    vm.regs[0] = 0;
     
     dirty.ram = [oldpc, vm.pc];
     if(write_mem) {
-      if(loc >= vm.RAM.length) {
+      if(loc >= VM_DEVICE_START) {
+        handle_io(loc, data);
+      } else if(loc >= vm.RAM.length) {
         throw {
           PC: vm.pc,
           message: "Attmpted to write to non-existant memory at location " + loc.toString(16) + ".",
           fatal: true
         };
-      }
-      if(vm.RAMState[loc] & RAM_UNALLOC && vm.config.faultOnUnallocW) {
+      } else if(vm.RAMState[loc] & RAM_UNALLOC && vm.config.faultOnUnallocW) {
         throw {
           PC: vm.pc,
           message: "Attempted write to unallocated memory",
           fatal: true
         };
-      }
-      if(vm.RAMState[loc] & RAM_CODE && vm.config.faultOnCodeW) {
+      } else if(vm.RAMState[loc] & RAM_CODE && vm.config.faultOnCodeW) {
         throw {
           PC: vm.pc,
           message: "Attempted write to protected code location.",
           fatal: true
         };
+      } else {
+        if((vm.RAMState[loc] & RAM_UNALLOC) && vm.config.heapAllocOnUnallocW) { vm.RAMState[loc] = RAM_HEAP; }
+        vm.RAM[loc] = data;
+        dirty.ram.push(loc);
       }
-      if((vm.RAMState[loc] & RAM_UNALLOC) && vm.config.heapAllocOnUnallocW) {
-        vm.RAMState[loc] = RAM_HEAP;
-      }
-      vm.RAM[loc] = data;
-      dirty.ram.push(loc);
     }
+    vm.regs[0] = 0;
     dirty.reg = [rsx, rtx, rdx];
   }
   return dirty;
+}
+
+function handle_io(loc, data) {
+  switch(loc) {
+    case VM_CONSOLE_CHAR_OUT:
+      if(typeof vm.console === "undefined") {
+        throw {
+          PC: vm.pc,
+          message: "No console attached.",
+          fatal: true,
+        };
+      }
+      vm.console.out(String.fromCharCode(data));
+      break;
+    default:
+      throw {
+        PC: vm.pc,
+        message: "Attempted write to incorrect device register.",
+        fatal: true,
+      };
+  }
 }

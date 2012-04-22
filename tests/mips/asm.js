@@ -393,7 +393,10 @@ function asmtomips(asm) {
 			assert_type(inst, type1I);
 			output.push(asm_j(opJAL, dai(inst[2])));
 			break;
-
+    case "putc":
+      assert_type(inst, type1I);
+      output.push(asm_j(opPUTC, dai(inst[2])));
+      break;
 		default:
 			throw "Unknown opcode: " + inst[1] + ".";
 			break;

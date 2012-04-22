@@ -32,6 +32,7 @@
   <div style="overflow-y:scroll;">
   <table id="RAM" class="RAM">
   </table>
+  <pre id="console"> </pre>
   <table id="regs" class="regs">
   </table>
   </div>
@@ -43,13 +44,12 @@
 <script type="text/javascript">
 var editor = CodeMirror(document.getElementById('sub-left'), {
                         mode: "mips",
-                        value: "; Puts Fibonacci numbers into RAM\naddi $1, $0, 0     ; f_{n-1}\naddi $2, $0, 1     ; f_n\naddi $5, $0, 0x14  ; end condition\nstart: add $3, $0, $0     ; reset pointer\nloop: sw $2, end($3)     ; store f_n\naddi $3, $3, 1     ; advance pointer\nadd $4, $2, $0     ; tmp = f_n\nadd $2, $2, $1     ; f_{n+1} = fn + f_{n-1}\nadd $1, $4, $0     ; f_{n-1} = tmp\nbeq $3, $5, done   ; don't overflow memory\nj loop\ndone: beq $0, $0, start  ; infinite loop\nend:",
+                        value: "       ; Puts Fibonacci numbers into RAM\n       addi $1, $0, 0     ; f_{n-1}\n       addi $2, $0, 1     ; f_n\n       addi $5, $0, 0x0F  ; end condition\nstart: add $3, $0, $0     ; reset pointer\nloop:  sw $2, end($3)     ; store f_n\n       addi $3, $3, 1     ; advance pointer\n       add $4, $2, $0     ; tmp = f_n\n       add $2, $2, $1     ; f_{n+1} = fn + f_{n-1}\n       add $1, $4, $0     ; f_{n-1} = tmp\n       beq $3, $5, done   ; don't overflow memory\n       j loop\ndone:  putc 67\n       putc 79\n       putc 67\n       putc 75\n       putc 13\n       beq $0, $0, start  ; infinite loop\nend:",
                         //add $1, $0, $0\naddi $2, $0, 6\nloop: addi $1, $1, 1\nsw $1, 32($0)\nbeq $1, $2, exit\nj loop\nexit: jr $31" ,
 
                         lineNumbers: true,
                         firstLineNumber: 0,
-                        indentUnit: 0,
-                        onChange: peek,
+                        indentUnit: 2,
                         autoClearEmptyLines: true,
                        });
 var labelre = new RegExp(/^[a-z][a-zA-Z0-9]*:/);
@@ -64,25 +64,14 @@ function toHex(d, padding) {
   return "0x" + hex;
 }
 
-function peek() {
-  editor.setOption('onChange', null);
-  var lineNum = editor.getCursor().line;
-  var line = editor.getLine(lineNum);
-  if(match = labelre.exec(line)) {
-    maxlabelsize = max(maxlabelsize, match[0].length + 1);
-  }
-  editor.indentLine(lineNum);
-  editor.setOption('indentUnit', maxlabelsize);
-  editor.setOption('onChange', peek);
-}
-
-for(var j = 0; j < 2; j++) {
-for(var i = 0; i < editor.lineCount(); i++) {
-  editor.setCursor(i,0);
-  peek();
-}
-}
+var console = {
+  out: function(x) { document.getElementById('console').innerHTML += x; },
+  clear: function(x) { document.getElementById('console').innerHTML = ''; }
+};
 vm = make_vm(32);
+console.clear();
+vm.console = console;
+
 make_RAM_table(vm, document.getElementById('RAM'));
 make_reg_table(vm, document.getElementById('regs'));
 
@@ -137,6 +126,8 @@ function do_assemble() {
 
 function do_reset() {
   vm = make_vm(32);
+  console.clear();
+  vm.console = console;
   make_RAM_table(vm, document.getElementById('RAM'));
   make_reg_table(vm, document.getElementById('regs'));
   document.getElementById('error').innerHTML = '';
