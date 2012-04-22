@@ -69,7 +69,7 @@ function update_ram(vm, x) {
   var here = vm.pc == x;
   var val;
   if(state & RAM_CODE) val = disasm(vm.RAM[x]);
-  else val = tohex(vm.RAM[x]);
+  else val = vm.RAM[x];
   row.innerHTML = '<th class="RAM"' + (here? 'id="here"':'') + '>0x' + disphex + '</th><td class="RAM" id="' + stateToId(state) + '">' + (((state & RAM_UNINIT) || (state & RAM_UNALLOC)) ? '' : val) + '</td>';
 }
 

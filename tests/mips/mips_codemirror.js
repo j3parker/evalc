@@ -24,6 +24,10 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
         state.newline = false;
         return "atom"
       }
+      if(ch == ',' || ch == '(' || ch == ')') {
+        stream.next();
+        return null;
+      }
       if(state.newline && stream.match(/[a-z][a-z]*:/)) {
         state.newline = false;
         return "string";
@@ -33,10 +37,10 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
         stream.skipToEnd();
         return "comment";
       }
-      if(stream.eat(/[0-9]/)) {
+      if(stream.eat(/[\-0-9]/)) {
         state.newline = false;
         stream.next();
-        stream.eatWhile(/[0-9]/);
+        stream.eatWhile(/[x0-9]/);
         return "number";
       }
       if(stream.match(/[a-zA-Z]+/) && !state.opcode) {
