@@ -167,7 +167,7 @@ function step(vm, n) {
             vm.hi = Math.floor((vm.regs[rsx] * vm.regs[rtx]) / 0x100000000) & 0xFFFFFFFF;
             vm.lo = (vm.regs[rsx] * vm.regs[rtx]) & 0xFFFFFFFF;
             break;
-          //case opOR: vm.regs[rdx] = vm.regs[rsx] | vm.regs[rtx]; break;
+          case opOR: vm.regs[rdx] = vm.regs[rsx] | vm.regs[rtx]; break;
           case opSLL: vm.regs[rdx] = vm.regs[rtx] << h(instr); break;
           case opSLLV: vm.regs[rdx] = vm.regs[rtx] << vm.regs[rsx]; break;
           case opSLT:
