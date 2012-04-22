@@ -28,7 +28,7 @@
   <button id="faster" onclick="do_faster()" style="visibility: hidden;">Faster!</button>
   <button id="stop" onclick="do_stop()" style="visibility: hidden;">Stop</button>
   <button id="reset" onclick="do_reset()" style="visibility: hidden;">Reset</button>
-  <p id="error"></p>
+  <div id="error"></div>
   <div style="overflow-y:scroll;">
   <table id="RAM" class="RAM">
   </table>
@@ -43,7 +43,7 @@
 <script type="text/javascript">
 var editor = CodeMirror(document.getElementById('sub-left'), {
                         mode: "mips",
-                        value: "; Puts Fibonacci numbers into RAM\naddi $1, $0, 0     ; f_{n-1}\naddi $2, $0, 1     ; f_n\naddi $5, $0, 0x15  ; end condition\nloop: sw $2, end($3)\naddi $3, $3, 1     ; advance pointer\nadd $4, $2, $0     ; tmp = f_n\nadd $2, $2, $1     ; f_{n+1} = fn + f_{n-1}\nadd $1, $4, $0     ; f_{n-1} = tmp\nbeq $3, $5, done   ; don't overflow memory\nj loop\ndone: beq $0, $0, -1     ; infinite loop\nend:",
+                        value: "; Puts Fibonacci numbers into RAM\naddi $1, $0, 0     ; f_{n-1}\naddi $2, $0, 1     ; f_n\naddi $5, $0, 0x14  ; end condition\nstart: add $3, $0, $0     ; reset pointer\nloop: sw $2, end($3)    ; store f_n\naddi $3, $3, 1     ; advance pointer\nadd $4, $2, $0     ; tmp = f_n\nadd $2, $2, $1     ; f_{n+1} = fn + f_{n-1}\nadd $1, $4, $0     ; f_{n-1} = tmp\nbeq $3, $5, done   ; don't overflow memory\nj loop\ndone: beq $0, $0, start  ; infinite loop\nend:",
                         //add $1, $0, $0\naddi $2, $0, 6\nloop: addi $1, $1, 1\nsw $1, 32($0)\nbeq $1, $2, exit\nj loop\nexit: jr $31" ,
 
                         lineNumbers: true,
@@ -87,14 +87,42 @@ make_RAM_table(vm, document.getElementById('RAM'));
 make_reg_table(vm, document.getElementById('regs'));
 
 function do_step() {
-  try { step(vm); }
+  var dirty = null;
+  try { dirty = step(vm, 1); }
   catch (err) {
-    document.getElementById('error').innerHTML = err.message;
+    if(err.fatal) {
+      var out = '<span style="color:#FF3333;">Fatal error: </span>' + err.message;
+      document.getElementById('error').innerHTML += out;
+      if(run_handle != null) {
+        clearInterval(run_handle);
+        run_handle = null;
+      }
+      document.getElementById('assemble').style.visibility = 'hidden';
+      document.getElementById('step').style.visibility = 'hidden';
+      document.getElementById('run').style.visibility = 'hidden';
+      document.getElementById('reset').style.visibility = 'visible';
+      document.getElementById('faster').style.visibility = 'hidden';
+      document.getElementById('stop').style.visibility = 'hidden';
+    } else {
+      throw err;
+    }
+  }
+  for(var i = 0; i < dirty.ram.length; i++) {
+    update_ram(vm, dirty.ram[i]);
+  }
+  for(var i = 0; i < dirty.reg.length; i++) {
+    update_reg(vm, dirty.reg[i]);
   }
 }
 
 function do_assemble() {
-  var asm = asmtomips(editor.getValue());
+  var asm;
+  try {
+    asm = asmtomips(editor.getValue());
+  } catch(err) {
+    // log errors here!
+    return;
+  }
   for(var idx=0;idx<asm.length;idx++) {
     program_ram(vm, idx, asm[idx]);
     update_ram(vm, idx);
@@ -111,6 +139,7 @@ function do_reset() {
   vm = make_vm(32);
   make_RAM_table(vm, document.getElementById('RAM'));
   make_reg_table(vm, document.getElementById('regs'));
+  document.getElementById('error').innerHTML = '';
   document.getElementById('assemble').style.visibility = 'visible';
   document.getElementById('step').style.visibility = 'hidden';
   document.getElementById('run').style.visibility = 'hidden';
@@ -119,7 +148,7 @@ function do_reset() {
   document.getElementById('stop').style.visibility = 'hidden';
 }
 
-var run_handle;
+var run_handle = null;
 var run_length;
 
 function do_run() {
@@ -142,6 +171,7 @@ function do_faster() {
 
 function do_stop() {
   clearInterval(run_handle);
+  run_handle = null;
   document.getElementById('assemble').style.visibility = 'hidden';
   document.getElementById('step').style.visibility = 'visible';
   document.getElementById('run').style.visibility = 'visible';
