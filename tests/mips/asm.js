@@ -142,7 +142,7 @@ function asmtomips(asm) {
 
 	function dri(im, pc) {
 		var a = dai(im);
-		return a - pc/4 - 1;
+		return (a - pc)/4 - 1;
 	}
 
 	var output = new Array();
@@ -217,6 +217,7 @@ function asmtomips(asm) {
 		case "noop":
 			assert_type(inst, type0R);
 			output.push(asm_r(opNOOP));
+			break;
 		case "nor":
 			assert_type(inst, type3R);
 			output.push(asm_r(opNOR, +inst[2], +inst[3], +inst[4]));
