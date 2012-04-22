@@ -3,11 +3,11 @@
 /* It's a DFA. This took too much effort and was dumb. */
 
 ;(function(exports, undefined) {
-"use strict";
+    "use strict";
 
 
 var tokenize = function(){
-  var state =  "(start)"
+  var state =  "(filestart)"
   var finals = {
     name: true,
     zero: true,
@@ -15,7 +15,10 @@ var tokenize = function(){
     hexint: true,
     octal: true,
     whitespace: true,
+    newline: true,
     string: true,
+    preprocessor: true,
+    comment: true,
     "(end)": true,
   }
   var table = {}
@@ -39,16 +42,17 @@ var tokenize = function(){
       } else if(t.length == 2) {
         if(!schars[t[0]]) {
           table["(start)"].push([t[0], t[0]]);
-	  schars[t[0]] = true;
-	} 
-	if(!table[t[0]]) { table[t[0]] = [] }
-	table[t[0]].push([t[1], t])
+          schars[t[0]] = true;
+        } 
+        if(!table[t[0]]) { table[t[0]] = [] }
+        table[t[0]].push([t[1], t])
       } else {
         console.log("Bad: ", t);
       }
       finals[t] = true;
     }
   }
+
 
   table["(start)"] = [
     ["'", "charseq"],
@@ -57,30 +61,39 @@ var tokenize = function(){
     ["_z", "name"],
     ["AZ", "name"],
     ["19", "int"],
-    ["\n ", "whitespace"],
+    ["\t", "whitespace"],
+    [" ", "whitespace"],
+    ["\n", "newline"],
     ["/", "/"],
   ];
 
+  table["(filestart)"] = [["#", "preprocessor-inc"]].concat(table["(start)"])
 
-  /* Includes crap control characters that shouldn't be here anyways */
-  table["whitespace"] = [["\n", " ", "whitespace"]];
+  table["newline"] = [["#", "preprocessor-inc"], ['\n', "newline"]]
+  table["whitespace"] = [["\t", "whitespace"], [" ", "whitespace"]];
+
+  table['preprocessor-inc'] = [[" ~", "preprocessor-inc"],
+                               ["\t", "preprocessor-inc"],
+                               ["\n", "preprocessor"]],
 
   table["/"] = [['*', '/*'], ['/', '//']];
+  table['//'] = [[' .', '//'], ['0~', '//'], ['\n', 'comment']]
 
-  table['/*'] = [[' )', '/*'], ['+~', '/*'], ['*', '/**']];
-  table['/**'] = [['/', 'whitespace'], [' .', '/*'], ['0~', '/*']];
+  table['/*'] = [['\t)', '/*'], ['+~', '/*'], ['*', '/**']];
+  table['/**'] = [['/', 'comment'], ['\t.', '/*'], ['0~', '/*']];
 
-  table["stringseq"] = [ [" !", "stringseq"], ["#[", "stringseq"], 
-                         ["]~", "stringseq"], ['"', "string"] ]
+  table["stringseq"] = [['"', "string"],[" !", "stringseq"],["#[", "stringseq"],
+                        ["]~", "stringseq"],  ['\\', 'stringslash']]
+  table["stringslash"] = [[' ~', 'stringseq']]
 
   /*C11 A.1.7*/
   punctuators(table, 
     ["[", "]", "(", ")", "{", "}", ".", "->", 
-     "++", "--", "&", "*", "+", "-", "~", "!",
-     "/", "%", "<<", ">>", "<", ">", "<=", ">=", "==", "!=",
-     "^", "|", "&&", "||", "?", ":", ";",
-     "=", "*=", "/=", "%=", "+=", "-=", "&=", "^=", "|=",
-     ",", "#", "##"]); /*Ommitted: Digraphs, ..., <<=, >>=*/
+    "++", "--", "&", "*", "+", "-", "~", "!",
+    "/", "%", "<<", ">>", "<", ">", "<=", ">=", "==", "!=",
+    "^", "|", "&&", "||", "?", ":", ";",
+    "=", "*=", "/=", "%=", "+=", "-=", "&=", "^=", "|=",
+    ",", "#", "##"]); /*Ommitted: Digraphs, ..., <<=, >>=*/
 
   table["int"] = [ ["09", "int"], /*int suffixes: U, L*/ ];
   table["octal"] = [["07", "octal"]];
@@ -105,16 +118,13 @@ var tokenize = function(){
   var change = function(c) {
     var trans = table[state];
     if(!trans) return;
-    //console.log("transition '" + c + "' in " + state);
-    //console.log(trans)
     for(var i = 0; i < trans.length; i++) {
       var r = trans[i];
       if(r[0].length == 1) {
         if(c == r[0]) {
-	  return r[1];
-	}
+          return r[1];
+        }
       } else if(c >= r[0][0] && c <= r[0][1]) {
-        //console.log("Rule " + r);
         return r[1];
       }
     }
@@ -124,21 +134,21 @@ var tokenize = function(){
     get: function() {
       while(true) {
         var c = this.peekchar();
-	if(typeof c == "undefined") { 
-	  var r = make();
-	  state = "(end)";
-	  return r;
-	};
+        if(typeof c == "undefined") { 
+          var r = make();
+          state = "(end)";
+          return r;
+        };
         var newstate = change(c);
-	if(!newstate) {
-	  if(finals[state]) {
-	    return make();
-	  }
-	  this.error("Unexpected tokenizing fail: " + c + " in state " + state);
-	  return false;
-	}
+        if(!newstate) {
+          if(finals[state]) {
+            return make();
+          }
+          this.error("Unexpected tokenizing fail: '" + c + "' in state '" + state + "'");
+          return false;
+        }
         state = newstate;
-	curr += c;
+        curr += c;
         this.nextchar();
       }
     },
