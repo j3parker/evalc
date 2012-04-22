@@ -43,7 +43,7 @@
 <script type="text/javascript">
 var editor = CodeMirror(document.getElementById('sub-left'), {
                         mode: "mips",
-                        value: "; Puts Fibonacci numbers into RAM\naddi $1, $0, 0     ; f_{n-1}\naddi $2, $0, 1     ; f_n\naddi $5, $0, 0x14  ; end condition\nstart: add $3, $0, $0     ; reset pointer\nloop: sw $2, end($3)    ; store f_n\naddi $3, $3, 1     ; advance pointer\nadd $4, $2, $0     ; tmp = f_n\nadd $2, $2, $1     ; f_{n+1} = fn + f_{n-1}\nadd $1, $4, $0     ; f_{n-1} = tmp\nbeq $3, $5, done   ; don't overflow memory\nj loop\ndone: beq $0, $0, start  ; infinite loop\nend:",
+                        value: "; Puts Fibonacci numbers into RAM\naddi $1, $0, 0     ; f_{n-1}\naddi $2, $0, 1     ; f_n\naddi $5, $0, 0x14  ; end condition\nstart: add $3, $0, $0     ; reset pointer\nloop: sw $2, end($3)     ; store f_n\naddi $3, $3, 1     ; advance pointer\nadd $4, $2, $0     ; tmp = f_n\nadd $2, $2, $1     ; f_{n+1} = fn + f_{n-1}\nadd $1, $4, $0     ; f_{n-1} = tmp\nbeq $3, $5, done   ; don't overflow memory\nj loop\ndone: beq $0, $0, start  ; infinite loop\nend:",
                         //add $1, $0, $0\naddi $2, $0, 6\nloop: addi $1, $1, 1\nsw $1, 32($0)\nbeq $1, $2, exit\nj loop\nexit: jr $31" ,
 
                         lineNumbers: true,

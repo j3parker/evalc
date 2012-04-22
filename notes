@@ -1,0 +1,17 @@
+VM
+Optimizations:
+  - push/pop instructions that can push/pop N registers at a time
+Devices:
+  - I/O
+    - Register to write a char
+    - Register to write begin of string pointer, register to write length, flushes on length write
+    - Register to ask if a char is ready on stdin
+    - Register to perform a blocking read of stdin
+  - Graphics
+    - ....
+UI:
+  - Give a map of (identifier,location,type) triples, in the RAM viewer, right aligned grey text ("faded out") for names of memory locations
+  - When decoding an instr, check the symbol table and if there is a match use that label
+  - If memory location is an int, display in base 10, if a ptr, display in base 16 etc.
+
+
