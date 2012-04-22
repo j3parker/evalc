@@ -142,7 +142,7 @@ function asmtomips(asm) {
 
 	function dri(im, pc) {
 		var a = dai(im);
-		return (a - pc - 4)/4;
+		return a - (pc/4);
 	}
 
 	var output = new Array();
