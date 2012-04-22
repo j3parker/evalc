@@ -5,7 +5,7 @@ function asmtomips(asm) {
 			  }
 		).filter(
 			function(x) {
-				return (null == /^[ \t]*$/.exec(x));
+				return (null === /^[ \t]*$/.exec(x));
 			}
 		);
 
@@ -43,7 +43,7 @@ function asmtomips(asm) {
 	var asm_matches = s.map(function(x) { return rxs.map(function(y) { return y.exec(x); }); }).map(
 		function(v) {
 			for(var i=0; i<v.length; i++) {
-				if(v[i] != null) {
+				if(v[i] !== null) {
 					var foo = [];
 					foo.push(i);
 					foo.push.apply(foo, v[i].slice(1, v.length-1));
@@ -57,12 +57,12 @@ function asmtomips(asm) {
 	var pc = 0;
 	for(var idx=0;idx<asm_matches.length;idx++) {
 		line = asm_matches[idx];
-		if(line == null) {
+		if(line === null) {
 			throw "Malformed instruction or garbage in input at instruction " + idx + ".";
 		}
 
-		if(line[0] == typeL) {
-			if(labels[line[1]] != undefined) {
+		if(line[0] === typeL) {
+			if(labels[line[1]] !== undefined) {
 				throw "Label '" + line[1] + "' twice defined.";
 			}
 			labels[line[1]] = pc;
@@ -75,7 +75,7 @@ function asmtomips(asm) {
 	}*/
 
 	function assert_type(i, t) {
-		if(i[0] != t) {
+		if(i[0] !== t) {
 			throw "Malformed instruction. Expected type " + t + ", but got " + i[0] + ".";
 		}
 	}
@@ -105,14 +105,14 @@ function asmtomips(asm) {
 
 	function asm_rs(fun, shamt) {
 		switch(arguments.length) {
-		case 1:
-			return ((fun)&0x3F);
 		case 2:
-			return ((fun)&0x3F) | rd(arguments[1]);
+			return ((shamt<<6)&0x7C0) | ((fun)&0x3F);
 		case 3:
-			return ((fun)&0x3F) | rd(arguments[1]) | rs(arguments[2]);
+			return ((shamt<<6)&0x7C0) | ((fun)&0x3F) | rd(arguments[2]);
 		case 4:
-			return ((fun)&0x3F) | rd(arguments[1]) | rs(arguments[2]) | rt(arguments[3]);
+			return ((shamt<<6)&0x7C0) | ((fun)&0x3F) | rd(arguments[2]) | rs(arguments[3]);
+		case 5:
+			return ((shamt<<6)&0x7C0) | ((fun)&0x3F) | rd(arguments[2]) | rs(arguments[3]) | rt(arguments[4]);
 		}
 	}
 
@@ -133,7 +133,7 @@ function asmtomips(asm) {
 		if(!isNaN(im)) {
 			return im;
 		} else {
-			if(labels[im] == undefined) {
+			if(labels[im] === undefined) {
 				throw "Label undefined: " + im + ".";
 			}
 			return labels[im];
@@ -154,7 +154,7 @@ function asmtomips(asm) {
 		inst = asm_matches[idx];
 
 
-		if(inst[0] == typeL) {
+		if(inst[0] === typeL) {
 			continue;
 		}
 
@@ -230,7 +230,8 @@ function asmtomips(asm) {
 			output.push(asm_r(opOR, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "sll":
-			//TODO: cocks
+			assert_type(inst, typeB);
+			output.push(asm_rs(opSLL, +inst[4], +inst[2], 0, +inst[3]));
 			break;
 		case "sllv":
 			assert_type(inst, type3R);
@@ -245,14 +246,16 @@ function asmtomips(asm) {
 			output.push(asm_r(opSLTU, +inst[2], +inst[3], +inst[4]));
 			break;
 		case "sra":
-			//TODO: cocks
+			assert_type(inst, typeB);
+			output.push(asm_rs(opSRA, +inst[4], +inst[2], 0, +inst[3]));
 			break;
 		case "srav":
 			assert_type(inst, type3R);
 			output.push(asm_r(opSRAV, +inst[2], +inst[4], +inst[3]));
 			break;
 		case "srl":
-			//TODO: cocks
+			assert_type(inst, typeB);
+			output.push(asm_rs(opSRL, +inst[4], +inst[2], 0, +inst[3]));
 			break;
 		case "srlv":
 			assert_type(inst, type3R);
@@ -296,6 +299,10 @@ function asmtomips(asm) {
 			assert_type(inst, type2I);
 			output.push(asm_i(opBGEZ, dri(inst[3], cpc), +inst[2], opBGEZ));
 			break;
+		case "bgezal":
+			assert_type(inst, type2I);
+			output.push(asm_i(opBGEZAL, dri(inst[3], cpc), +inst[2], opBGEZ));
+			break;
 		case "bgtz":
 			assert_type(inst, type2I);
 			output.push(asm_i(opBGTZ, dri(inst[3], cpc), +inst[2]));
@@ -307,6 +314,10 @@ function asmtomips(asm) {
 		case "bltz":
 			assert_type(inst, type2I);
 			output.push(asm_i(opBLTZ, dri(inst[3], cpc), +inst[2]));
+			break;
+		case "bltzal":
+			assert_type(inst, type2I);
+			output.push(asm_i(opBLTZAL, dri(inst[3], cpc), +inst[2]));
 			break;
 		case "bne":
 			assert_type(inst, typeB);

@@ -90,12 +90,6 @@ function program_ram(vm, loc, op) {
   vm.RAMState[loc] = RAM_CODE;
 }
 
-function tcx_to_untyped(tcx, x) {
-  /* sorry */
-  return ((tcx + (1<<(x-1))) % (1<<x)) - (1<<(x-1));
-}
-
-
 function step(vm, n) {
   var dirty = { ram: [], reg: [] },
       oldpc = vm.pc,
@@ -156,7 +150,7 @@ function step(vm, n) {
             vm.lo = Math.floor(vm.regs[rsx] / vm.regs[rtx]) & 0xFFFFFFFF;
             vm.hi = Math.floor(vm.regs[rsx] % vm.regs[rtx]) & 0xFFFFFFFF;
             break;
-          case opJR: vm.pc = vm.regs[rsx] - 1; break; // TODO: ???
+          case opJR: vm.pc = vm.regs[rsx] - 1; break;
           case opMFHI: vm.regs[rdx] = vm.hi; break;
           case opMFLO: vm.regs[rdx] = vm.lo; break;
           case opMULT:
@@ -170,7 +164,7 @@ function step(vm, n) {
             vm.hi = Math.floor((vm.regs[rsx] * vm.regs[rtx]) / 0x100000000) & 0xFFFFFFFF;
             vm.lo = (vm.regs[rsx] * vm.regs[rtx]) & 0xFFFFFFFF;
             break;
-          //case opOR: vm.regs[rdx] = vm.regs[rsx] | vm.regs[rtx]; break;
+          case opOR: vm.regs[rdx] = vm.regs[rsx] | vm.regs[rtx]; break;
           case opSLL: vm.regs[rdx] = vm.regs[rtx] << h(instr); break;
           case opSLLV: vm.regs[rdx] = vm.regs[rtx] << vm.regs[rsx]; break;
           case opSLT:
@@ -203,9 +197,9 @@ function step(vm, n) {
       case opBRANCH:
         switch(rtx) {
           case opBGEZ: if(tc32_to_untyped(vm.regs[rsx]) >= 0) { vm.pc += immx; } break;
-          case opBGEZAL: break;
-          case opBLTZ: break;
-          case opBLTZAL: break;
+          case opBGEZAL: if(tc32_to_untyped(vm.regs[rsx]) >= 0) { vm.regs[31] = vm.pc; vm.pc += immx; } break;
+          case opBLTZ: if(tc32_to_untyped(vm.regs[rsx]) < 0) { vm.pc += immx; } break;
+          case opBLTZAL: if(tc32_to_untyped(vm.regs[rsx]) < 0) { vm.regs[31] = vm.pc; vm.pc += immx; } break;
           default: throw {
                      PC: vm.pc,
                      message: "Invalid branch-like opcode.",

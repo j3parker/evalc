@@ -20,8 +20,12 @@ function disasm(instr) {
         case opMFLO:    return "mflo $" + rd(instr);
         case opMULT:    return "mult $" + rs(instr) + ", $" + rt(instr);
         case opMULTU:   return "multu $" + rs(instr) + ", $" + rt(instr);
-        case opNOOP:    return "noop";
-        case opSLL:     return "sll $" + rd(instr) + ", $" + rt(instr) + ", " + h(instr);
+        case opNOOP:
+		if(instr === 0)
+			return "noop";
+		else
+			return "sll $" + rd(instr) + ", $" + rt(instr) + ", " + h(instr);
+		break;
         case opSLLV:    return "sslv $" + rd(instr) + ", $" + rt(instr) + ", $" + rs(instr);
         case opSLT:     return "slt $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
         case opSLTU:    return "sltu $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
