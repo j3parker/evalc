@@ -29,15 +29,15 @@ function asmtomips(asm) {
 			// 3R
 			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*\$([0-9]+)[ \t]*,[ \t]*\$([0-9]+)$/,
 			// 1I
-			/^[ \t]*([a-z]+)[ \t]* ([a-zA-Z0-9]+)$/,
+			/^[ \t]*([a-z]+)[ \t]* (-?[a-zA-Z0-9]+)$/,
 			// 2I
-			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*[ \t]*,[ \t]*([a-zA-Z0-9]+)$/,
+			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*[ \t]*,[ \t]*(-?[a-zA-Z0-9]+)$/,
 			// Branch
-			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*\$([0-9]+)[ \t]*,[ \t]*([a-zA-Z0-9]+)$/,
+			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*\$([0-9]+)[ \t]*,[ \t]*(-?[a-zA-Z0-9]+)$/,
 			// Load/store
-			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*([a-zA-Z0-9]+)[ \t]*\([ \t]*\$([0-9]+)[ \t]*\)$/,
+			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*(-?[a-zA-Z0-9]+)[ \t]*\([ \t]*\$([0-9]+)[ \t]*\)$/,
 			// Label
-			/^[ \t]*([a-z0-9]+):$/
+			/^[ \t]*([a-zA-Z]+[a-zA-Z0-9]*):$/
 		];
 
 	var asm_matches = s.map(function(x) { return rxs.map(function(y) { return y.exec(x); }); }).map(
@@ -142,12 +142,12 @@ function asmtomips(asm) {
 
 	function dri(im, pc) {
 		var a = dai(im);
-		return (a - pc - 4)/4;
+		return a - pc/4 - 1;
 	}
 
 	var output = new Array();
+	cpc = 0;
 	for(var idx=0;idx<asm_matches.length;idx++) {
-		cpc = 0;
 		inst = asm_matches[idx];
 
 
