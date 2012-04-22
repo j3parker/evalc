@@ -141,8 +141,11 @@ function asmtomips(asm) {
 	}
 
 	function dri(im, pc) {
-		var a = dai(im);
-		return (a - pc)/4 - 1;
+		if(!isNaN(im)) {
+			return im;
+		} else {
+			return (dai(im) - pc)/4 - 1;
+		}
 	}
 
 	var output = new Array();
