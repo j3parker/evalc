@@ -197,7 +197,7 @@ function asmtomips(asm) {
 			assert_type(inst, type1R);
 			output.push(asm_r(opMFHI, +inst[2]));
 			break;
-		case "mfhi":
+		case "mflo":
 			assert_type(inst, type1R);
 			output.push(asm_r(opMFLO, +inst[2]));
 			break;

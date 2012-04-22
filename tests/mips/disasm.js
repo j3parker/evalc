@@ -18,7 +18,7 @@ function disasm(instr) {
         case opJR:      return "jr $" + rs(instr);
         case opMFHI:    return "mfhi $" + rd(instr);
         case opMFLO:    return "mflo $" + rd(instr);
-        case opMULT:    return "mult $" + rs(intsr) + ", $" + rt(instr);
+        case opMULT:    return "mult $" + rs(instr) + ", $" + rt(instr);
         case opMULTI:   return "multu $" + rs(intsr) + ", $" + rt(instr);
         case opNOOP:    return "noop ";
         case opSLL:     return "sll $" + rd(instr) + ", $" + rt(instr) + ", " + h(instr);
