@@ -3,7 +3,7 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
                    "beq", "bgez", "bgezal", "bgtz", "blez", "bltz",
                    "bltzal", "bne", "div", "divu", "j", "jal", "jr",
                    "lb", "lui", "lw", "mfhi", "mflo", "mult", "multu",
-                   "noop", "or", "ori", "sb", "sll", "sllv", "slt",
+                   "noop", "putc", "or", "ori", "sb", "sll", "sllv", "slt",
                    "slti", "sltiu", "sltu", "sra", "srl", "srlv", "sub",
                    "subu", "sw", "syscall", "xor", "xori"];
   var labelre = new RegExp(/^[a-zA-Z][a-zA-Z0-9]*:/);
@@ -40,7 +40,7 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
       if(stream.eat(/[\-0-9]/)) {
         state.newline = false;
         stream.next();
-        stream.eatWhile(/[x0-9]/);
+        stream.eatWhile(/[x0-9A-Fa-f]/);
         return "number";
       }
       if(stream.match(/[a-zA-Z]+/) && !state.opcode) {
