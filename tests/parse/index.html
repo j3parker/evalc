@@ -22,8 +22,8 @@ function parsec() {
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
 
-  /*ast_walk(result, well_typed, undefined);
-  console.log("well-typed.");*/
+  ast_walk(result, well_typed, undefined);
+  console.log("well-typed.");
 
   var to = document.getElementById('parse');
   if(to == null) return;

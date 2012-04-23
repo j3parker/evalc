@@ -22,10 +22,17 @@ function ast_walk(ast, f, initacc) {
 var INTEGER = 0;
 
 function assert_typeclass(node, typeclass) {
+  var tc;
+  if(node.type === undefined) // sequence (comma)
+  {
+    tc = node[node.length-1];
+  } else {
+    tc = node;
+  }
   switch(typeclass) {
     case INTEGER:
-      if(node.type != "int") {
-        throw "Type mismatch: Got "+node.type+", expected integer.";
+      if(tc.type != "int") {
+        throw "Type mismatch: Got "+tc.type+", expected integer.";
       }
       break;
   }
