@@ -14,4 +14,5 @@ UI:
   - When decoding an instr, check the symbol table and if there is a match use that label
   - If memory location is an int, display in base 10, if a ptr, display in base 16 etc.
 
-
+Bugs:
+  multu 0xFFFFFFFF, 0xFFFFFFFF is broken, because javascript can't multiply things.
