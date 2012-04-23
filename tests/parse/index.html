@@ -2,6 +2,7 @@
 <script src="clike.js"></script>
 <script src="c.js"></script>
 <script src="json.js"></script>
+<script src="walk.js"></script>
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
 <body>
 <p>parsing demo</p>
@@ -13,6 +14,9 @@ var editor = CodeMirror(document.body, {
                         lineNumbers: true,
                         onChange: parsec
                        });
+function walkprint(astnode, c) {
+  console.log(astnode.node_type);
+}
 function parsec() {
   var result;
   try { result = c.parse(editor.getValue()); }
@@ -23,6 +27,7 @@ function parsec() {
     to.innerHTML = JSON.stringify(result, null, '  ');
   else 
     to.innerHTML = "error";
+  ast_walk(result, walkprint, undefined);
 }
 </script>
 <pre id="parse">
