@@ -1,9 +1,9 @@
 table.RAM {
   font-family:monospace;
-  width: 100%;
-  font-size: 8pt;
+  font-size: 7pt;
   border:1px solid black;
   border-collapse: collapse;
+
 }
 th.RAM {
   font-weight: normal;
@@ -16,8 +16,33 @@ td.RAM {
   width: 100%;
   padding-left: 10px;
 }
+
 #code    { background-color: #FFFFCC; }
 #stack   { background-color: #CCCCFF; }
 #unalloc { background-color: #CCCCCC; }
 #heap    { background-color: #CCFFCC; }
 #here    { background-color: #FFCCCC; }
+
+#container {
+  border: 1px solid gray;
+  width: 80em;
+  height: 90%;
+  margin: auto;
+}
+
+#assembler {
+  width: 40em;
+  float: left;
+  overflow: auto;
+}
+
+#vm {
+  width: 40em;
+  max-height: 30em;
+  float:left;
+  overflow: auto;
+}
+
+#console {
+  margin: 0 auto;
+}

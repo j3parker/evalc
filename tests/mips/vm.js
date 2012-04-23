@@ -126,7 +126,7 @@ function step(vm, n) {
               fatal: true
       };
     }
-    if(loc >= vm.RAM.length) {
+    if(vm.pc >= vm.RAM.length) {
       throw {
               PC: vm.pc,
               message: "Attmpted to load code from non-existant memory at location " + loc.toString(16) + ".",
@@ -322,7 +322,17 @@ function handle_io(loc, data) {
           fatal: true,
         };
       }
-      vm.console.out(String.fromCharCode(data));
+      vm.console.putc(String.fromCharCode(data));
+      break;
+    case VM_CONSOLE_CHAR_IN :
+      if(typeof vm.console === "undefined") {
+        throw {
+          PC: vm.pc,
+          message: "No console attached.",
+          fatal: true,
+        };
+      }
+      vm.console.getc();
       break;
     default:
       throw {
