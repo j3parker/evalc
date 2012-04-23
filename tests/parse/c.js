@@ -306,7 +306,9 @@ case 113:
 break;
 case 114:
         this.$ = new Object();
-        this.$.node_type = "TODO struct_declaration";
+        this.$.node_type = "struct_field";
+	this.$.member_types = $$[$0-2];
+	this.$.members = $$[$0-1];
       
 break;
 case 115:
@@ -323,7 +325,7 @@ case 117:
 break;
 case 118: this.$ = [$$[$0]]; 
 break;
-case 119: this.$ = $$[$0]; 
+case 119: this.$ = [$$[$0]]; 
 break;
 case 120:
         $$[$0-2].push($$[$0]);
@@ -332,12 +334,14 @@ case 120:
 break;
 case 122:
       this.$ = new Object();
-      this.$.node_type = "TODO struct_declarator1";
+      this.$.node_type = "pad_width";
     
 break;
 case 123:
       this.$ = new Object();
-      this.$.node_type = "TODO struct_declarator2";
+      this.$.node_type = "bitfield";
+      this.$.decl = $$[$0-2];
+      this.$.width = $$[$0-1];
     
 break;
 case 124:
@@ -392,21 +396,19 @@ case 132:
 break;
 case 137:
       this.$ = new Object();
-      this.$.node_type = "TODO declarator1";
-      this.$.data1 = $$[$0-1];
-      this.$.data2 = $$[$0];
+      this.$.node_type = "pointer_declarator";
+      this.$.pointer = $$[$0-1];
+      this.$.direct_decl = $$[$0];
     
 break;
 case 140:
-        this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator1";
-        this.$.data1 = $$[$0-1];
+        this.$ = $$[$0-1];
       
 break;
 case 141:
         this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator2";
-        this.$.data1 = $$[$0-2];
+        this.$.node_type = "unsized_array_dcl";
+        this.$.dcl = $$[$0-2];
       
 break;
 case 142:
@@ -418,9 +420,9 @@ case 142:
 break;
 case 143:
         this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator4";
-        this.$.data1 = $$[$0-3];
-        this.$.data2 = $$[$0-1];
+        this.$.node_type = "expr_sized_array_dcl";
+        this.$.size_expr = $$[$0-1];
+        this.$.dcl = $$[$0-3];
       
 break;
 case 144:
@@ -456,28 +458,29 @@ case 147:
 break;
 case 148:
         this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator9";
-        this.$.data1 = $$[$0-3];
+        this.$.node_type = "unsized_array_dcl";
+        this.$.dcl = $$[$0-3];
       
 break;
 case 149:
         this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator10";
-        this.$.data1 = $$[$0-3];
-        this.$.data2 = $$[$0-1];
+        this.$.node_type = "function_dcl";
+        this.$.dcl = $$[$0-3];
+        this.$.params = $$[$0-1];
       
 break;
 case 150:
         this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator11";
-        this.$.data1 = $$[$0-2];
+        this.$.node_type = "function_dcl";
+        this.$.dcl = $$[$0-2];
+	this.$.params = [];
       
 break;
 case 151:
         this.$ = new Object();
-        this.$.node_type = "TODO direct_declarator12";
-        this.$.data1 = $$[$0-3];
-        this.$.data2 = $$[$0-1];
+        this.$.node_type = "id_function_dcl";
+        this.$.dcl = $$[$0-3];
+        this.$.param_ids = $$[$0-1];
       
 break;
 case 152: this.$ = ['*']; 
@@ -495,16 +498,10 @@ case 157:
         this.$ = $$[$0-1];
       
 break;
-case 158:
-        this.$ = new Object();
-        this.$.node_type = "TODO parameter_type_list1";
-        this.$.data1 = $$[$0];
-      
-break;
 case 159:
         this.$ = new Object();
-        this.$.node_type = "TODO parameter_type_list2";
-        this.$.data1 = $$[$0-2];
+        this.$.node_type = "variadic_params";
+        this.$.params = $$[$0-2];
       
 break;
 case 160: this.$ = [$$[$0]]; 
@@ -516,15 +513,15 @@ case 161:
 break;
 case 162:
         this.$ = new Object();
-        this.$.node_type = "TODO parameter_declaration1";
-        this.$.data1 = $$[$0-1];
-        this.$.data2 = $$[$0];
+        this.$.node_type = "full_param_dcl";
+        this.$.dcl_specs = $$[$0-1];
+        this.$.dcl = $$[$0];
       
 break;
 case 163:
         this.$ = new Object();
-        this.$.node_type = "TODO parameter_declaration2";
-        this.$.data1 = $$[$0];
+        this.$.node_type = "spec_param_dcl";
+        this.$.dcl_specs = $$[$0];
       
 break;
 case 164:

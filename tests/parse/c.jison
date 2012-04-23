@@ -543,7 +543,9 @@ struct_declaration
     : specifier_qualifier_list struct_declarator_list ';'
       {
         $$ = new Object();
-        $$.node_type = "TODO struct_declaration";
+        $$.node_type = "struct_field";
+	$$.member_types = $1;
+	$$.members = $2;
       }
     ;
 
@@ -563,7 +565,7 @@ specifier_qualifier_list
     ;
 
 struct_declarator_list
-    : struct_declarator { $$ = $1; }
+    : struct_declarator { $$ = [$1]; }
     | struct_declarator_list ',' struct_declarator
       {
         $1.push($3);
@@ -576,12 +578,14 @@ struct_declarator
     | ':' constant_expression
     {
       $$ = new Object();
-      $$.node_type = "TODO struct_declarator1";
+      $$.node_type = "pad_width";
     }
     | declarator ':' constant_expression
     {
       $$ = new Object();
-      $$.node_type = "TODO struct_declarator2";
+      $$.node_type = "bitfield";
+      $$.decl = $1;
+      $$.width = $2;
     }
     ;
 
@@ -657,9 +661,9 @@ declarator
     : pointer direct_declarator
     {
       $$ = new Object();
-      $$.node_type = "TODO declarator1";
-      $$.data1 = $1;
-      $$.data2 = $2;
+      $$.node_type = "pointer_declarator";
+      $$.pointer = $1;
+      $$.direct_decl = $2;
     }
     | direct_declarator
     ;
@@ -668,15 +672,13 @@ direct_declarator
     : IDENTIFIER
     | '(' declarator ')'
       {
-        $$ = new Object();
-        $$.node_type = "TODO direct_declarator1";
-        $$.data1 = $2;
+        $$ = $2;
       }
     | direct_declarator '[' ']'
       {
         $$ = new Object();
-        $$.node_type = "TODO direct_declarator2";
-        $$.data1 = $1;
+        $$.node_type = "unsized_array_dcl";
+        $$.dcl = $1;
       }
     | direct_declarator '[' type_qualifier_list ']'
       {
@@ -688,9 +690,9 @@ direct_declarator
     | direct_declarator '[' assignment_expression ']'
       {
         $$ = new Object();
-        $$.node_type = "TODO direct_declarator4";
-        $$.data1 = $1;
-        $$.data2 = $3;
+        $$.node_type = "expr_sized_array_dcl";
+        $$.size_expr = $3;
+        $$.dcl = $1;
       }
     | direct_declarator '[' type_qualifier_list assignment_expression ']'
       {
@@ -726,28 +728,29 @@ direct_declarator
     | direct_declarator '[' '*' ']'
       {
         $$ = new Object();
-        $$.node_type = "TODO direct_declarator9";
-        $$.data1 = $1;
+        $$.node_type = "unsized_array_dcl";
+        $$.dcl = $1;
       }
     | direct_declarator '(' parameter_type_list ')'
       {
         $$ = new Object();
-        $$.node_type = "TODO direct_declarator10";
-        $$.data1 = $1;
-        $$.data2 = $3;
+        $$.node_type = "function_dcl";
+        $$.dcl = $1;
+        $$.params = $3;
       }
     | direct_declarator '(' ')'
       {
         $$ = new Object();
-        $$.node_type = "TODO direct_declarator11";
-        $$.data1 = $1;
+        $$.node_type = "function_dcl";
+        $$.dcl = $1;
+	$$.params = [];
       }
     | direct_declarator '(' identifier_list ')'
       {
         $$ = new Object();
-        $$.node_type = "TODO direct_declarator12";
-        $$.data1 = $1;
-        $$.data2 = $3;
+        $$.node_type = "id_function_dcl";
+        $$.dcl = $1;
+        $$.param_ids = $3;
       }
     ;
 
@@ -769,16 +772,11 @@ type_qualifier_list
 
 parameter_type_list
     : parameter_list
-      {
-        $$ = new Object();
-        $$.node_type = "TODO parameter_type_list1";
-        $$.data1 = $1;
-      }
     | parameter_list ',' ELLIPSIS
       {
         $$ = new Object();
-        $$.node_type = "TODO parameter_type_list2";
-        $$.data1 = $1;
+        $$.node_type = "variadic_params";
+        $$.params = $1;
       }
     ;
 
@@ -795,15 +793,15 @@ parameter_declaration
     : declaration_specifiers declarator
       {
         $$ = new Object();
-        $$.node_type = "TODO parameter_declaration1";
-        $$.data1 = $1;
-        $$.data2 = $2;
+        $$.node_type = "full_param_dcl";
+        $$.dcl_specs = $1;
+        $$.dcl = $2;
       }
     | declaration_specifiers
       {
         $$ = new Object();
-        $$.node_type = "TODO parameter_declaration2";
-        $$.data1 = $1;
+        $$.node_type = "spec_param_dcl";
+        $$.dcl_specs = $1;
       }
     | declaration_specifiers abstract_declarator
       {
