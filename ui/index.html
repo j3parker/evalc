@@ -1,0 +1,60 @@
+<script type="text/javascript" src="../lib/jquery.js"></script>
+<script type="text/javascript" src="splitter.js"></script>
+<link rel="stylesheet/less" type="text/css" href="styles/theme.less">
+<link rel="stylesheet" href="../lib/console/style2.css" type="text/css">
+<link rel="stylesheet/less" type="text/css" href="styles/codemirror.less">
+<link rel="stylesheet/less" type="text/css" href="styles/splitter.less">
+<link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
+<script src="../lib/codemirror/lib/codemirror.js"></script>
+<script src="../styles/codemirror/clike.js"></script>
+<script src="../lib/console/console2.js"></script>
+<script src="../lib/console/termlib/termlib.js"></script>
+
+<script src="less.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$().ready(function() {
+  $("#MySplitter").splitter({
+    type: "h", 
+    anchorToWindow: true,
+  });
+});
+</script>
+</head>
+<body>
+<div id="MySplitter">
+
+  <div id="TopPane">
+  <textarea id="code">
+#include&lt;stdio.h&gt;
+
+int main() {
+  printf("Hello, world!\n");
+  return 0;
+}
+  </textarea>
+  </div>
+  
+  <div id="BottomPane" onmouseout="disable_console()" onmouseover="enable_console()">
+  </div>
+
+</div>
+
+</body>
+</html>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  lineNumbers: true,
+  theme: 'tneighties',
+  mode: "text/x-csrc",
+});
+editor.getScrollerElement().style.height = '100%';
+editor.refresh();
+$(window).resize(function(e){
+  console.log('ping');
+  editor.refresh();
+});
+termOpen();
+disable_console();
+</script>
