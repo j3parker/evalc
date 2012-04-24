@@ -1,19 +1,40 @@
-function ast_walk(ast, f, initacc) {
+function ast_walk_up(ast, f, initacc) {
   if((typeof(ast) !== "object") && (typeof(ast) !== "array"))
     return initacc;
 
   if(ast["t"] !== undefined) {
     for(var i = 0; i < ast.t.length; i++) {
-      initacc = ast_walk(ast.t[i], f, initacc);
+      initacc = ast_walk_up(ast.t[i], f, initacc);
     }
   } else if((ast["node_type"] === undefined) && ((typeof(ast) === "object") || (typeof(ast) === "array"))) {
     for(var i = 0; i < ast.length; i++) {
-      initacc = ast_walk(ast[i], f, initacc);
+      initacc = ast_walk_up(ast[i], f, initacc);
     }
   }
 
   if(ast["node_type"] !== undefined) {
     initacc = f(ast, initacc);
+  }
+
+  return initacc;
+}
+
+function ast_walk_down_b(ast, f, initacc) {
+  if((typeof(ast) !== "object") && (typeof(ast) !== "array"))
+    return initacc;
+
+  if(ast["node_type"] !== undefined) {
+    initacc = f(ast, initacc);
+  }
+
+  if(ast["t"] !== undefined) {
+    for(var i = 0; i < ast.t.length; i++) {
+      ast_walk_down_b(ast.t[i], f, initacc);
+    }
+  } else if((ast["node_type"] === undefined) && ((typeof(ast) === "object") || (typeof(ast) === "array"))) {
+    for(var i = 0; i < ast.length; i++) {
+      ast_walk_down_b(ast[i], f, initacc);
+    }
   }
 
   return initacc;
@@ -44,8 +65,27 @@ function assert(cond) {
   }
 }
 
+function link_parents(node, accu) {
+  node.parent = accu;
+  return node;
+}
+
 function  well_typed(node, accu) {
   switch(node.node_type) {
+    case "block": // Drop symbol table and reset accu.
+      node.symbols = accu;
+      accu = new Object();
+      break;
+    case "decl":
+      if(node.decls !== undefined) {
+        for(var i = 0;i < node.decls.length;i++) {
+          if(accu[node.decls[i].name] !== undefined) {
+            throw "Name redefined: "+node.decls[i].name+".";
+          }
+          accu[node.decls[i].name] = node.type;
+        }
+      }
+      break;
     case "primary_expression_const":
       node.type = "int";
       break;
@@ -142,5 +182,11 @@ function  well_typed(node, accu) {
       node.type = "int";
       break;
   }
+  return accu;
+}
+
+function typecheck(ast) {
+  ast_walk_down_b(ast, link_parents, undefined);
+  ast_walk_up(ast, well_typed, new Object());
 }
 
