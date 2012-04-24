@@ -168,6 +168,11 @@ function step(vm, n) {
             vm.lo = (vm.regs[rsx] * vm.regs[rtx]) & 0xFFFFFFFF;
             break;
           case opOR: vm.regs[rdx] = vm.regs[rsx] | vm.regs[rtx]; break;
+          case opPUTC:
+            loc = VM_CONSOLE_CHAR_OUT;
+            data = vm.regs[rsx];
+            write_mem = true; 
+            break;
           case opSLL: vm.regs[rdx] = vm.regs[rtx] << h(instr); break;
           case opSLLV: vm.regs[rdx] = vm.regs[rtx] << vm.regs[rsx]; break;
           case opSLT:
@@ -221,38 +226,37 @@ function step(vm, n) {
       case opBGTZ: if(tc32_to_untyped(vm.regs[rsx]) > 0) { vm.pc += immx; } break;
       case opBLEZ: if(tc32_to_untyped(vm.regs[rsx]) < 0) { vm.pc += immx; } break;
       case opBNE: if(vm.regs[rsx] !== vm.regs[rtx]) { vm.pc += immx; } break;
-      case opJ: vm.pc = (vm.pc & 0xF0000000) | target(instr)/4; break; // TODO
+      case opJ: vm.pc = (vm.pc & 0xF0000000) | target(instr)/4; break;
       case opJAL:
         vm.regs[31] = vm.pc + 1;
-        vm.pc = (vm.pc & 0xF0000000) | target(instr);
+        vm.pc = (vm.pc & 0xF0000000) | target(instr)/4;
         break;
       case opLB:
+        loc = vm.regs[rsx] + immx;
+        var wloc = Math.floor(loc/4);
+        vm.regs[rtx] = (vm.RAM[wloc] & (0xFF<<(8*(3-loc%4))))>>((3-loc%4)*8);
+        // TODO: err, this is probably backwards, also check out .string
+        break;
       case opLUI: vm.regs[rtx] = immx << 16; break;
       case opLW:
-        offset = immx;
-        if(offset%4 !== 0) {
+        loc = vm.regs[rsx] + immx;
+        if(loc%4 !== 0) {
           throw {
             PC: vm.pc,
             message: "Unaligned word read.",
             fatal: true
           };
         }
-        loc = rsx+immx/4;
-        if(loc >= vm.RAM.length) {
+        if(loc/4 >= vm.RAM.length) {
           throw {
             PC: vm.pc,
             message: "Attmpted to read from non-existant memory at location " + loc.toString(16) + ".",
             fatal: true
           };
         }
-        vm.regs[rtx] = vm.RAM[loc];
+        vm.regs[rtx] = vm.RAM[loc/4];
         break;
       case opORI:
-      case opPUTC:
-        loc = VM_CONSOLE_CHAR_OUT;
-        data = immx;
-        write_mem = true; 
-        break;
       case opSB:
       case opSLTI:
       case opSLTIU:
@@ -323,6 +327,7 @@ function handle_io(loc, data) {
         };
       }
       vm.console.putc(String.fromCharCode(data));
+      console.log('putting ' + data);
       break;
     case VM_CONSOLE_CHAR_IN :
       if(typeof vm.console === "undefined") {

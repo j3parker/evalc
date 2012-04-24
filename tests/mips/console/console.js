@@ -1,5 +1,5 @@
 var term;
-var console = {
+var con = {
   putc: function(x) {
     switch(x) {
       case '\r':
@@ -9,6 +9,7 @@ var console = {
         break;
       default:
         this.buffer += x;
+        console.log('putting ' + x);
         if(this.buffer.length > 32) this.flush();
     }
   },

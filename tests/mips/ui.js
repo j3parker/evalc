@@ -29,12 +29,12 @@ function do_step() {
 
 function do_assemble() {
   var asm;
-  try {
+//  try {
     asm = asmtomips(editor.getValue());
-  } catch(err) {
+  //} catch(err) {
     // log errors here!
-    return;
-  }
+    //return;
+//  }
   for(var idx=0;idx<asm.length;idx++) {
     program_ram(vm, idx, asm[idx]);
     update_ram(vm, idx);
@@ -49,7 +49,8 @@ function do_assemble() {
 
 function do_reset() {
   vm = make_vm(32);
-  vm.console = console;
+  vm.console = con;
+  con.flush();
   make_RAM_table(vm, document.getElementById('RAM'));
   term.clear();
   document.getElementById('assemble').style.visibility = 'visible';

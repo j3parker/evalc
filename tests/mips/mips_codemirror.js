@@ -5,7 +5,7 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
                    "lb", "lui", "lw", "mfhi", "mflo", "mult", "multu",
                    "noop", "putc", "or", "ori", "sb", "sll", "sllv", "slt",
                    "slti", "sltiu", "sltu", "sra", "srl", "srlv", "sub",
-                   "subu", "sw", "syscall", "xor", "xori"];
+                   "subu", "sw", "syscall", "xor", "xori", ".word", ".string"];
   var labelre = new RegExp(/^[a-zA-Z][a-zA-Z0-9]*:/);
   return {
     startState: function(basecolumn) {
@@ -43,7 +43,7 @@ CodeMirror.defineMode("mips", function(config, parserConfig) {
         stream.eatWhile(/[x0-9A-Fa-f]/);
         return "number";
       }
-      if(stream.match(/[a-zA-Z]+/) && !state.opcode) {
+      if(stream.match(/[a-zA-Z\.]+/) && !state.opcode) {
         state.newline = false;
         state.opcode = true;
         if(keywords.indexOf(stream.current()) != -1) {

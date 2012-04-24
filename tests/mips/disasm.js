@@ -26,6 +26,7 @@ function disasm(instr) {
 		else
 			return "sll $" + rd(instr) + ", $" + rt(instr) + ", " + h(instr);
 		break;
+        case opPUTC:   return "putc $" + rs(instr);
         case opSLLV:    return "sslv $" + rd(instr) + ", $" + rt(instr) + ", $" + rs(instr);
         case opSLT:     return "slt $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
         case opSLTU:    return "sltu $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
@@ -60,7 +61,6 @@ function disasm(instr) {
     case opLUI:    return "lui $" + rt(instr) + ", 0x" + imm(instr).toString(16);
     case opLW:     return "lw $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
     case opORI:    return "ori $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
-    case opPUTC:   return "putc '" + String.fromCharCode(imm(instr)) + "'";
     case opSB:     return "sb $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";
     case opSLTI:   return "slti $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opSLTIU:  return "sltiu $" + rd(instr) + ", $" + rs(instr) + ", 0x" + imm(instr).toString(16);
