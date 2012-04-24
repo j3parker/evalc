@@ -23,6 +23,27 @@
     <div id="assembler">
       <button id="assemble" onclick="do_assemble()">Assemble</button>
       <textarea id="asm">
+main:
+  addi $1, $0, data
+  jal putstr
+  j main
+
+putstr:
+  lb $2, 0($1)
+  beq $0, $2, putstrdone
+  putc $2
+  addi $1, $1, 1
+  j putstr
+putstrdone:
+  jr $31
+
+data:
+  .string "Hello, world!\n"
+exit:
+  beq $0, $0, -1
+end:     
+      </textarea>
+    <!--
        ; Puts Fibonacci numbers into RAM
        addi $1, $0, 0     ; f_{n-1}
        addi $2, $0, 1     ; f_n
@@ -41,8 +62,7 @@ done:  putc 67
        putc 75
        putc 13
        beq $0, $0, start  ; infinite loop
-end:
-      </textarea>
+end:--!>
     </div>
     <div id="vm">
       <button id="step" onclick="do_step()" style="visibility: hidden;">Step</button>
@@ -68,7 +88,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById('asm'),
                           indentUnit: 2,
                         });
 vm = make_vm(32);
-vm.console = console;
+vm.console = con;
 make_RAM_table(vm, document.getElementById('RAM'));
 
 disable_console();

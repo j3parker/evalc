@@ -45,4 +45,4 @@ var opADD     = 0x20,
     opSUBU    = 0x13,
     opSYSCALL = 0x0C,
     opXOR     = 0x26;
-var opPUTC    = 0x10; // custom opcodes
+var opPUTC    = 0x01; // custom opcodes

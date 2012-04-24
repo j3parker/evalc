@@ -1,4 +1,48 @@
 function asmtomips(asm) {
+  function formatstrlen(x) { for(var i = 0; i < x.length; x++) { var ans = 0; if(i==='\\') continue; ans++; } return ans; }
+  function formatstr(x) {
+    var ans = '';
+    var esc = false;
+    for(var i = 0; i < x.length; i++) {
+      if(esc) {
+        switch(x[i]) {
+          case 'n': ans += '\n'; esc = false; break;
+          default: throw { msg: "unknown escape sequence \\" + x[i] };
+        }
+      } else {
+        if(x[i] == '\\') { esc = true; }
+        else { ans += x[i]; }
+      }
+    }
+    if(esc) throw { msg: "unterminated escape sequence in string" };
+    return ans;
+  }
+  function zeropadL(x, n) {
+    n -= x.length;
+    while(n-- > 0) { x = '0' + x; }
+    return x;
+  }
+  function zeropadR(x,n) {
+    n -= x.length;
+    while(n-- > 0) { x += '0'; }
+    return x;
+  }
+  function strtowords(x) {
+    var i=0, j = 0;
+    var ans = new Array();
+    var word = '';
+    for(i = 0; i < x.length; i+=1) {
+      word += zeropadL(x.charCodeAt(i).toString(16), 2);
+      if(++j == 4) {
+        ans.push(+('0x' + word));
+        j = 0;
+        word = '';
+      }
+    }
+    ans.push(+('0x' + zeropadR(word, 8)));
+    return ans;
+  }
+
 	var s = asm.replace(/:/g,":\n").split("\n").map(
 			function(x) {
 				return x.replace(/ *; .*$/, "");
@@ -17,13 +61,15 @@ function asmtomips(asm) {
 	    type2I = 5,
 	    typeB = 6,
 	    typeP = 7,
-	    typeL = 8;
+	    typeL = 8,
+      typeW = 9,
+      typeS = 10;
 	var rxs =
 		[
 			// 0R
 			/^[ \t]*([a-z]+)$/,
 			// 1R
-                        /^[ \t]*([a-z]+)[ \t]* \$([0-9]+)$/,
+      /^[ \t]*([a-z]+)[ \t]* \$([0-9]+)$/,
 			// 2R
 			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*\$([0-9]+)$/,
 			// 3R
@@ -37,7 +83,11 @@ function asmtomips(asm) {
 			// Load/store
 			/^[ \t]*([a-z]+)[ \t]* \$([0-9]+)[ \t]*,[ \t]*(-?[a-zA-Z0-9]+)[ \t]*\([ \t]*\$([0-9]+)[ \t]*\)$/,
 			// Label
-			/^[ \t]*([a-zA-Z]+[a-zA-Z0-9]*):$/
+			/^[ \t]*([a-zA-Z]+[a-zA-Z0-9]*):$/,
+      // .word macro
+      /^[ \t]*(\.word)[ \t]* (-?[a-zA-Z0-9]+)[ \t]*$/,
+      // .string macro
+      /^[ \t]*(\.string)[ \t]* "([^"]*)"$/,
 		];
 
 	var asm_matches = s.map(function(x) { return rxs.map(function(y) { return y.exec(x); }); }).map(
@@ -66,6 +116,8 @@ function asmtomips(asm) {
 				throw "Label '" + line[1] + "' twice defined.";
 			}
 			labels[line[1]] = pc;
+    } else if(line[0] === typeS) {
+      pc += 4*Math.ceil((1 + formatstrlen(line[2]))/4);
 		} else {
 			pc += 4;
 		}
@@ -229,6 +281,10 @@ function asmtomips(asm) {
 			assert_type(inst, type3R);
 			output.push(asm_r(opOR, +inst[2], +inst[3], +inst[4]));
 			break;
+    case "putc":
+      assert_type(inst, type1R);
+      output.push(asm_r(opPUTC, 0, +inst[2]));
+      break;
 		case "sll":
 			assert_type(inst, typeB);
 			output.push(asm_rs(opSLL, +inst[4], +inst[2], 0, +inst[3]));
@@ -393,9 +449,17 @@ function asmtomips(asm) {
 			assert_type(inst, type1I);
 			output.push(asm_j(opJAL, dai(inst[2])));
 			break;
-    case "putc":
-      assert_type(inst, type1I);
-      output.push(asm_j(opPUTC, dai(inst[2])));
+
+    // W type
+    case ".word":
+      assert_type(inst, typeW);
+      output.push(+inst[2]);
+      break;
+    case ".string":
+      assert_type(inst, typeS);
+      var ans = strtowords(formatstr(inst[2]));
+      // why did concat not work? TODO
+      for(var iii = 0; iii < ans.length;iii++) output.push(ans[iii]);
       break;
 		default:
 			throw "Unknown opcode: " + inst[1] + ".";
