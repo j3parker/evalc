@@ -42,6 +42,17 @@ function ast_walk_down_b(ast, f, initacc) {
 
 var INTEGER = 0;
 
+function get_typeof_id(node, id) {
+  if(node === undefined)
+    return undefined;
+  if(node.node_type === "block") {
+    if(node.symbols[id] !== undefined) {
+      return node.symbols[id];
+    }
+  }
+  return get_typeof_id(node.parent, id);
+}
+
 function assert_typeclass(node, typeclass) {
   var tc;
   if(node.type === undefined) // sequence (comma)
@@ -70,12 +81,11 @@ function link_parents(node, accu) {
   return node;
 }
 
-function  well_typed(node, accu) {
+function collect_symbols(node, accu) {
   switch(node.node_type) {
-    case "block": // Drop symbol table and reset accu.
-      node.symbols = accu;
-      accu = new Object();
-      break;
+    case "block":
+      node.symbols = new Object();
+      return node.symbols;
     case "decl":
       if(node.decls !== undefined) {
         for(var i = 0;i < node.decls.length;i++) {
@@ -86,11 +96,20 @@ function  well_typed(node, accu) {
         }
       }
       break;
+  }
+  return accu;
+}
+
+function  well_typed(node, accu) {
+  switch(node.node_type) {
+    case "decl":
+      // TODO: typecheck decls.
+      break;
     case "primary_expression_const":
       node.type = "int";
       break;
     case "primary_expression_id":
-      // TODO: from symbol table
+      node.type = get_typeof_id(node, node.expr);
       break;
     case "function_call":
       // TODO: arguments match. to type: return.
@@ -182,11 +201,16 @@ function  well_typed(node, accu) {
       node.type = "int";
       break;
   }
-  return accu;
 }
 
 function typecheck(ast) {
   ast_walk_down_b(ast, link_parents, undefined);
-  ast_walk_up(ast, well_typed, new Object());
+  var global_st = Object();
+  ast_walk_down_b(ast, collect_symbols, global_st);
+
+  console.log("globals:");
+  console.log(global_st);
+
+  ast_walk_up(ast, well_typed, undefined);
 }
 
