@@ -247,7 +247,6 @@ unary_operator
     ;
 
 cast_expression
-
     : unary_expression
     | '(' type_name ')' cast_expression
       {
@@ -487,6 +486,7 @@ declaration
         $$ = new Object();
         $$.node_type = "decl";
         $$.type = $1;
+        $$.decls = null;
         $$.t = [ $$.type ];
       }
     | declaration_specifiers init_declarator_list ';'
@@ -525,6 +525,7 @@ init_declarator
         $$ = new Object();
         $$.node_type = "init_decl";
         $$.name = $1;
+        $$.value = null;
         $$.t = [ $$.name ];
       }
     | declarator '=' initializer
@@ -567,6 +568,7 @@ struct_or_union_specifier
       {
         $$ = new Object();
         $$.node_type = $1;
+        $$.name = null;
         $$.decls = $3;
         $$.t = [ $$.decls ];
       }
@@ -582,6 +584,8 @@ struct_or_union_specifier
       {
         $$ = new Object();
         $$.node_type = $1;
+        $$.name = null;
+        $$.decls = null;
         $$.name = $2;
       }
     ;
@@ -641,7 +645,9 @@ struct_declarator
     {
       $$ = new Object();
       $$.node_type = "pad_width";
+      $$.decl = null;
       $$.width = $2;
+      $$.t = [];
     }
     | declarator ':' constant_expression
     {
@@ -658,6 +664,7 @@ enum_specifier
       {
         $$ = new Object();
         $$.node_type = "enum";
+        $$.name = null;
         $$.list = $3;
         $$.t = [ $$.list ];
       }
@@ -673,6 +680,7 @@ enum_specifier
       {
         $$ = new Object();
         $$.node_type = "enum";
+        $$.name = null;
         $$.list = $3;
         $$.t = [ $$.list ];
       }
@@ -689,6 +697,8 @@ enum_specifier
         $$ = new Object();
         $$.node_type = "enum";
         $$.name = $2;
+        $$.list = [];
+        $$.t = [];
       }
     ;
 
@@ -702,11 +712,13 @@ enumerator_list
     ;
 
 enumerator
-    : IDENTIFIER 
+    : IDENTIFIER
       {
         $$ = new Object();
         $$.node_type = "enum_entry";
         $$.name = $1;
+        $$.data = null;
+        $$.t = [];
       }
     | IDENTIFIER '=' constant_expression
       {
@@ -1113,9 +1125,15 @@ labeled_statement
         $$.node_type = "case";
         $$.guard = $2;
         $$.body = $4;
-        $$.t= [ $$.guard, $$.body ];
+        $$.t = [ $$.guard, $$.body ];
       }
     | DEFAULT ':' statement
+      {
+        $$ = new Object();
+        $$.node_type = "default";
+        $$.body = $3;
+        $$.t = [ $$.body ]; 
+      }
     ;
 
 compound_statement
@@ -1123,6 +1141,8 @@ compound_statement
       {
         $$ = new Object();
         $$.node_type = "block";
+        $$.contents = [];
+        $$.t = [];
       }
     | '{' block_item_list '}'
       {
@@ -1148,8 +1168,13 @@ block_item
     ;
 
 expression_statement
-    : ';' { $$ = []; }
-    | expression ';' 
+    : ';'
+      {
+        $$ = new Object();
+        $$.node_type = "expression";
+        $$.seqs = [];
+      }
+    | expression ';'
     ;
 
 statement_list
@@ -1168,6 +1193,7 @@ selection_statement
         $$.node_type = "if";
         $$.cond = $3;
         $$.then = $5;
+        $$.else = null;
         $$.t = [ $$.cond, $$.then ];
       }
     | IF '(' expression ')' statement ELSE statement
@@ -1212,9 +1238,10 @@ iteration_statement
         $$.node_type = "for";
         $$.init = $3;
         $$.cond = $4;
+        $$.action = null;
         $$.body = $6;
         $$.t = [ $$.init, $$.cond, $$.body ];
-      } 
+      }
     | FOR '(' expression_statement expression_statement expression ')' statement
       {
         $$ = new Object();
@@ -1224,13 +1251,14 @@ iteration_statement
         $$.action = $5;
         $$.body = $7;
         $$.t = [ $$.init, $$.cond, $$.action, $$.body ];
-      } 
+      }
     | FOR '(' declaration expression_statement ')' statement
       {
         $$ = new Object();
         $$.node_type = "for";
         $$.init = $3;
         $$.cond = $4;
+        $$.action = null;
         $$.body = $6;
         $$.t = [ $$.init, $$.cond, $$.body ];
       }
@@ -1260,6 +1288,8 @@ jump_statement
       {
         $$ = new Object();
         $$.node_type = "return";
+        $$.target = null;
+        $$.t = [];
       }
     | RETURN expression ';'
       {

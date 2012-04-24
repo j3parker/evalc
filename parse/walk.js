@@ -83,6 +83,7 @@ function link_parents(node, accu) {
 
 function collect_symbols(node, accu) {
   switch(node.node_type) {
+    case "root":
     case "block":
       node.symbols = new Object();
       return node.symbols;
