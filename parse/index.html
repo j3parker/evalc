@@ -24,10 +24,10 @@ function parsec() {
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
 
-//  if(typeof(result) == "object") {
-//    typecheck(result);
-//    console.log("well-typed.");
-//  }
+  if(typeof(result) == "object") {
+    typecheck(result);
+    console.log("well-typed.");
+  }
 
   var to = document.getElementById('parse');
   if(to == null) return;

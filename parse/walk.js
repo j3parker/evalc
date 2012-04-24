@@ -54,16 +54,9 @@ function get_typeof_id(node, id) {
 }
 
 function assert_typeclass(node, typeclass) {
-  var tc;
-  if(node.type === undefined) // sequence (comma)
-  {
-    tc = node[node.length-1];
-  } else {
-    tc = node;
-  }
   switch(typeclass) {
     case INTEGER:
-      if(tc.type != "int") {
+      if(node.type != "int") {
         throw "Type mismatch: Got "+tc.type+", expected integer.";
       }
       break;
@@ -102,6 +95,9 @@ function collect_symbols(node, accu) {
 
 function  well_typed(node, accu) {
   switch(node.node_type) {
+    case "expression":
+      node.type = node.seqs[node.seqs.length-1].type;
+      break;
     case "decl":
       // TODO: typecheck decls.
       break;
