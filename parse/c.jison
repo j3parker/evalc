@@ -467,10 +467,11 @@ expression
         $$ = new Object();
         $$.node_type = "expression";
         $$.seqs = [$1];
+        $$.t = [ $$.seqs ];
       }
     | expression ',' assignment_expression
       {
-        $1.push($3);
+        $1.seqs.push($3);
         $$ = $1;
       }
     ;
