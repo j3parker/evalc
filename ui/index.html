@@ -22,9 +22,9 @@ $().ready(function() {
 </script>
 </head>
 <body>
-<div id="MySplitter">
+<div id="MySplitter" >
 
-  <div id="TopPane">
+  <div id="TopPane" onclick="disable_console()">
   <textarea id="code">
 #include&lt;stdio.h&gt;
 
@@ -34,8 +34,8 @@ int main() {
 }
   </textarea>
   </div>
-  
-  <div id="BottomPane" onmouseout="disable_console()" onmouseover="enable_console()">
+
+  <div id="BottomPane" onclick="enable_console()">
   </div>
 
 </div>
