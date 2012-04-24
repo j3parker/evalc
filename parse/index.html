@@ -18,16 +18,16 @@ var editor = CodeMirror(document.body, {
 function walkprint(astnode, c) {
   console.log(astnode.node_type);
 }
-  var result;
+  var result=null;
 function parsec() {
   require(["dojox/json/ref"], function(ref) {
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
 
-  if(typeof(result) == "object") {
-    typecheck(result);
-    console.log("well-typed.");
-  }
+//  if(typeof(result) == "object") {
+//    typecheck(result);
+//    console.log("well-typed.");
+//  }
 
   var to = document.getElementById('parse');
   if(to == null) return;

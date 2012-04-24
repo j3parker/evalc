@@ -138,7 +138,7 @@ postfix_expression
         $$.target = new Object();
         $$.target.node_type = "+";
         $$.target.targets = [$1, $3];
-	$$.t = [ $$.target.targets ];
+        $$.t = [ $$.target.targets ];
       }
     | postfix_expression '(' ')'
       {
@@ -146,7 +146,7 @@ postfix_expression
         $$.node_type = "function_call";
         $$.func = $1;
         $$.args = [];
-	$$.t = [ $$.func, $$.args ];
+        $$.t = [ $$.func, $$.args ];
       }
     | postfix_expression '(' argument_expression_list ')'
       {
@@ -154,14 +154,14 @@ postfix_expression
         $$.node_type = "function_call"
         $$.func = $1;
         $$.args = $3;
-	$$.t = [ $$.func, $$.args ];
+        $$.t = [ $$.func, $$.args ];
       }
     | postfix_expression '.' IDENTIFIER
       {
         $$ = new Object();
         $$.node_type = ".";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | postfix_expression PTR_OP IDENTIFIER
       {
@@ -171,21 +171,21 @@ postfix_expression
         $$ = new Object();
         $$.node_type = ".";
         $$.targets = [inner, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | postfix_expression INC_OP
       {
         $$ = new Object();
         $$.node_type = "post++";
         $$.target = $1;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     | postfix_expression DEC_OP
       {
         $$ = new Object();
         $$.node_type = "post--";
         $$.target = $1;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     ;
 
@@ -205,35 +205,35 @@ unary_expression
         $$ = new Object();
         $$.node_type = "pre++";
         $$.target = $2;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     | DEC_OP unary_expression
       {
         $$ = new Object();
         $$.node_type = "pre--";
         $$.target = $2;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     | unary_operator cast_expression
       {
         $$ = new Object();
         $$.node_type = "unary" + $1;
         $$.target = $2;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     | SIZEOF unary_expression
       {
         $$ = new Object();
         $$.node_type = "sizeof";
         $$.target = $2;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     | SIZEOF '(' type_name ')'
       {
         $$ = new Object();
         $$.node_type = "sizeof";
         $$.target = $3;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     ;
 
@@ -255,7 +255,7 @@ cast_expression
         $$.node_type = "typecast";
         $$.type = $2;
         $$.target = $4;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     ;
 
@@ -266,21 +266,21 @@ multiplicative_expression
         $$ = new Object();
         $$.node_type = "*";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | multiplicative_expression '/' cast_expression
       {
         $$ = new Object();
         $$.node_type = "/";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | multiplicative_expression '%' cast_expression
       {
         $$ = new Object();
         $$.node_type = "%";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -291,14 +291,14 @@ additive_expression
         $$ = new Object();
         $$.node_type = "+";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | additive_expression '-' multiplicative_expression
       {
         $$ = new Object();
         $$.node_type = "-";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -309,14 +309,14 @@ shift_expression
         $$ = new Object();
         $$.node_type = "<<";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | shift_expression RIGHT_OP additive_expression
       {
         $$ = new Object();
         $$.node_type = ">>";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -327,28 +327,28 @@ relational_expression
         $$ = new Object();
         $$.node_type = "<";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | relational_expression '>' shift_expression
       {
         $$ = new Object();
         $$.node_type = ">";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | relational_expression LE_OP shift_expression
       {
         $$ = new Object();
         $$.node_type = "<=";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | relational_expression GE_OP shift_expression
       {
         $$ = new Object();
         $$.node_type = ">=";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -359,14 +359,14 @@ equality_expression
         $$ = new Object();
         $$.node_type = "==";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     | equality_expression NE_OP relational_expression
       {
         $$ = new Object();
         $$.node_type = "!=";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -377,7 +377,7 @@ and_expression
         $$ = new Object();
         $$.node_type = "&";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -388,7 +388,7 @@ exclusive_or_expression
         $$ = new Object();
         $$.node_type = "^";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -399,7 +399,7 @@ inclusive_or_expression
         $$ = new Object();
         $$.node_type = "|";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -410,7 +410,7 @@ logical_and_expression
         $$ = new Object();
         $$.node_type = "&&";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -421,7 +421,7 @@ logical_or_expression
         $$ = new Object();
         $$.node_type = "||";
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -432,7 +432,7 @@ conditional_expression
         $$ = new Object();
         $$.node_type = "?";
         $$.targets = [$1, $3, $5];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -443,7 +443,7 @@ assignment_expression
         $$ = new Object();
         $$.node_type = $2;
         $$.targets = [$1, $3];
-	$$.t = [ $$.targets ];
+        $$.t = [ $$.targets ];
       }
     ;
 
@@ -462,7 +462,12 @@ assignment_operator
     ;
 
 expression
-    : assignment_expression { $$ = [$1]; }
+    : assignment_expression
+      {
+        $$ = new Object();
+        $$.node_type = "expression";
+        $$.seqs = [$1];
+      }
     | expression ',' assignment_expression
       {
         $1.push($3);
@@ -482,7 +487,7 @@ declaration
         $$ = new Object();
         $$.node_type = "decl";
         $$.type = $1;
-	$$.t = [ $$.type ];
+        $$.t = [ $$.type ];
       }
     | declaration_specifiers init_declarator_list ';'
       {
@@ -490,7 +495,7 @@ declaration
         $$.node_type = "decl";
         $$.type = $1;
         $$.decls = $2;
-	$$.t = [ $$.type, $$.decls ];
+        $$.t = [ $$.type, $$.decls ];
       }
     ;
 
@@ -518,17 +523,17 @@ init_declarator
     : declarator
       {
         $$ = new Object();
-	$$.node_type = "init_decl";
+        $$.node_type = "init_decl";
         $$.name = $1;
-	$$.t = [ $$.name ];
+        $$.t = [ $$.name ];
       }
     | declarator '=' initializer
       {
         $$ = new Object();
-	$$.node_type = "init_decl";
+        $$.node_type = "init_decl";
         $$.name = $1;
         $$.value = $3;
-	$$.t = [ $$.name, $$.value ];
+        $$.t = [ $$.name, $$.value ];
       }
     ;
 
@@ -563,7 +568,7 @@ struct_or_union_specifier
         $$ = new Object();
         $$.node_type = $1;
         $$.decls = $3;
-	$$.t = [ $$.decls ];
+        $$.t = [ $$.decls ];
       }
     | struct_or_union IDENTIFIER '{' struct_declaration_list '}'
       {
@@ -571,7 +576,7 @@ struct_or_union_specifier
         $$.node_type = $1;
         $$.name = $2;
         $$.decls = $4;
-	$$.t = [ $$.decls ];
+        $$.t = [ $$.decls ];
       }
     | struct_or_union IDENTIFIER
       {
@@ -600,9 +605,9 @@ struct_declaration
       {
         $$ = new Object();
         $$.node_type = "struct_field";
-	$$.members_type = $1;
-	$$.members = $2;
-	$$.t = [ $$.members_type, $$.members ];
+        $$.members_type = $1;
+        $$.members = $2;
+        $$.t = [ $$.members_type, $$.members ];
       }
     ;
 
@@ -654,7 +659,7 @@ enum_specifier
         $$ = new Object();
         $$.node_type = "enum";
         $$.list = $3;
-	$$.t = [ $$.list ];
+        $$.t = [ $$.list ];
       }
     | ENUM IDENTIFIER '{' enumerator_list '}'
       {
@@ -662,14 +667,14 @@ enum_specifier
         $$.node_type = "enum";
         $$.name = $2;
         $$.list = $4;
-	$$.t = [ $$.list ];
+        $$.t = [ $$.list ];
       }
     | ENUM '{' enumerator_list ',' '}'
       {
         $$ = new Object();
         $$.node_type = "enum";
         $$.list = $3;
-	$$.t = [ $$.list ];
+        $$.t = [ $$.list ];
       }
     | ENUM IDENTIFIER '{' enumerator_list ',' '}'
       {
@@ -677,7 +682,7 @@ enum_specifier
         $$.node_type = "enum";
         $$.name = $2;
         $$.list = $4;
-	$$.t = [ $$.list ];
+        $$.t = [ $$.list ];
       }
     | ENUM IDENTIFIER
       {
@@ -700,16 +705,16 @@ enumerator
     : IDENTIFIER 
       {
         $$ = new Object();
-	$$.node_type = "enum_entry";
+        $$.node_type = "enum_entry";
         $$.name = $1;
       }
     | IDENTIFIER '=' constant_expression
       {
         $$ = new Object();
-	$$.node_type = "enum_fixed_entry";
+        $$.node_type = "enum_fixed_entry";
         $$.name = $1;
         $$.data = $3;
-	$$.t = [ $$.data ];
+        $$.t = [ $$.data ];
       }
     ;
 
@@ -746,7 +751,7 @@ direct_declarator
         $$ = new Object();
         $$.node_type = "unsized_array_dcl";
         $$.dcl = $1;
-	$$.t = [ $$.dcl ];
+        $$.t = [ $$.dcl ];
       }
     | direct_declarator '[' type_qualifier_list ']'
       {
@@ -761,7 +766,7 @@ direct_declarator
         $$.node_type = "expr_sized_array_dcl";
         $$.size_expr = $3;
         $$.dcl = $1;
-	$$.t = [ $$.size_expr, $$.dcl ];
+        $$.t = [ $$.size_expr, $$.dcl ];
       }
     | direct_declarator '[' type_qualifier_list assignment_expression ']'
       {
@@ -799,7 +804,7 @@ direct_declarator
         $$ = new Object();
         $$.node_type = "unsized_array_dcl";
         $$.dcl = $1;
-	$$.t = [ $$.dcl ];
+        $$.t = [ $$.dcl ];
       }
     | direct_declarator '(' parameter_type_list ')'
       {
@@ -807,15 +812,15 @@ direct_declarator
         $$.node_type = "function_dcl";
         $$.dcl = $1;
         $$.params = $3;
-	$$.t = [ $$.dcl, $$.params ];
+        $$.t = [ $$.dcl, $$.params ];
       }
     | direct_declarator '(' ')'
       {
         $$ = new Object();
         $$.node_type = "function_dcl";
         $$.dcl = $1;
-	$$.params = [];
-	$$.t = [ $$.dcl, $$.params ];
+        $$.params = [];
+        $$.t = [ $$.dcl, $$.params ];
       }
     | direct_declarator '(' identifier_list ')'
       {
@@ -823,7 +828,7 @@ direct_declarator
         $$.node_type = "id_function_dcl";
         $$.dcl = $1;
         $$.param_ids = $3;
-	$$.t = [ $$.dcl, $$.param_ids ];
+        $$.t = [ $$.dcl, $$.param_ids ];
       }
     ;
 
@@ -850,7 +855,7 @@ parameter_type_list
         $$ = new Object();
         $$.node_type = "variadic_params";
         $$.params = $1;
-	$$.t = [ $$.params ];
+        $$.t = [ $$.params ];
       }
     ;
 
@@ -870,14 +875,14 @@ parameter_declaration
         $$.node_type = "full_param_dcl";
         $$.dcl_specs = $1;
         $$.dcl = $2;
-	$$.t = [ $$.dcl_specs, $$.dcl ];
+        $$.t = [ $$.dcl_specs, $$.dcl ];
       }
     | declaration_specifiers
       {
         $$ = new Object();
         $$.node_type = "spec_param_dcl";
         $$.dcl_specs = $1;
-	$$.t = [ $$.dcl_specs ];
+        $$.t = [ $$.dcl_specs ];
       }
     | declaration_specifiers abstract_declarator
       {
@@ -1100,7 +1105,7 @@ labeled_statement
         $$.node_type = "labeled_statement";
         $$.label = $1;
         $$.statement = $3;
-	$$.t = [ $$.statement ];
+        $$.t = [ $$.statement ];
       }
     | CASE constant_expression ':' statement
       {
@@ -1108,7 +1113,7 @@ labeled_statement
         $$.node_type = "case";
         $$.guard = $2;
         $$.body = $4;
-	$$.t= [ $$.guard, $$.body ];
+        $$.t= [ $$.guard, $$.body ];
       }
     | DEFAULT ':' statement
     ;
@@ -1124,7 +1129,7 @@ compound_statement
         $$ = new Object();
         $$.node_type = "block";
         $$.contents = $2;
-	$$.t = [ $$.contents ];
+        $$.t = [ $$.contents ];
       }
     ;
 
@@ -1163,7 +1168,7 @@ selection_statement
         $$.node_type = "if";
         $$.cond = $3;
         $$.then = $5;
-	$$.t = [ $$.cond, $$.then ];
+        $$.t = [ $$.cond, $$.then ];
       }
     | IF '(' expression ')' statement ELSE statement
       {
@@ -1172,7 +1177,7 @@ selection_statement
         $$.cond = $3;
         $$.then = $5;
         $$.else = $7;
-	$$.t = [ $$.cond, $$.then, $$.else ];
+        $$.t = [ $$.cond, $$.then, $$.else ];
       }
     | SWITCH '(' expression ')' statement
       {
@@ -1180,7 +1185,7 @@ selection_statement
         $$.node_type = "switch";
         $$.param = $3;
         $$.body = $5;
-	$$.t = [ $$.param, $$.body ];
+        $$.t = [ $$.param, $$.body ];
       }
     ;
 
@@ -1191,7 +1196,7 @@ iteration_statement
         $$.node_type = "while";
         $$.cond = $3;
         $$.body = $5;
-	$$.t = [ $$.cond, $$.body ];
+        $$.t = [ $$.cond, $$.body ];
       }
     | DO statement WHILE '(' expression ')' ';'
       {
@@ -1199,7 +1204,7 @@ iteration_statement
         $$.node_type = "do_while";
         $$.cond = $5;
         $$.body = $2;
-	$$.t = [ $$.cond, $$.body ];
+        $$.t = [ $$.cond, $$.body ];
       }
     | FOR '(' expression_statement expression_statement ')' statement
       {
@@ -1208,7 +1213,7 @@ iteration_statement
         $$.init = $3;
         $$.cond = $4;
         $$.body = $6;
-	$$.t = [ $$.init, $$.cond, $$.body ];
+        $$.t = [ $$.init, $$.cond, $$.body ];
       } 
     | FOR '(' expression_statement expression_statement expression ')' statement
       {
@@ -1218,7 +1223,7 @@ iteration_statement
         $$.cond = $4;
         $$.action = $5;
         $$.body = $7;
-	$$.t = [ $$.init, $$.cond, $$.action, $$.body ];
+        $$.t = [ $$.init, $$.cond, $$.action, $$.body ];
       } 
     | FOR '(' declaration expression_statement ')' statement
       {
@@ -1227,7 +1232,7 @@ iteration_statement
         $$.init = $3;
         $$.cond = $4;
         $$.body = $6;
-	$$.t = [ $$.init, $$.cond, $$.body ];
+        $$.t = [ $$.init, $$.cond, $$.body ];
       }
     | FOR '(' declaration expression_statement expression')' statement
       {
@@ -1237,7 +1242,7 @@ iteration_statement
         $$.cond = $4;
         $$.action = $5;
         $$.body = $7;
-	$$.t = [ $$.init, $$.cond, $$.action, $$.body ];
+        $$.t = [ $$.init, $$.cond, $$.action, $$.body ];
       }
     ;
 
@@ -1247,7 +1252,7 @@ jump_statement
         $$ = new Object();
         $$.node_type = "goto";
         $$.target = $2;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     | CONTINUE ';'
     | BREAK ';'
@@ -1261,17 +1266,23 @@ jump_statement
         $$ = new Object();
         $$.node_type = "return";
         $$.target = $2;
-	$$.t = [ $$.target ];
+        $$.t = [ $$.target ];
       }
     ;
 
 /* A.2.4 External definitions */
 
 translation_unit
-    : external_declaration { $$ = [$1]; }
+    : external_declaration
+      {
+        $$ = new Object();
+        $$.node_type = "root"
+        $$.globals = [$1];
+        $$.t = [ $$.globals ];
+      }
     | translation_unit external_declaration
       {
-        $1.push($2);
+        $1.globals.push($2);
         $$ = $1;
       }
     ;
@@ -1289,7 +1300,7 @@ function_definition
         $$.return_type = $1;
         $$.sig = $2;
         $$.body = $3;
-	$$.t = [ $$.return_type, $$.sig, $$.body ];
+        $$.t = [ $$.return_type, $$.sig, $$.body ];
       }
     | declaration_specifiers declarator declaration_list compound_statement
       { 

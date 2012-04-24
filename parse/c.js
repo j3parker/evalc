@@ -35,7 +35,7 @@ case 6:
         this.$.target = new Object();
         this.$.target.node_type = "+";
         this.$.target.targets = [$$[$0-3], $$[$0-1]];
-	this.$.t = [ this.$.target.targets ];
+        this.$.t = [ this.$.target.targets ];
       
 break;
 case 7:
@@ -43,7 +43,7 @@ case 7:
         this.$.node_type = "function_call";
         this.$.func = $$[$0-2];
         this.$.args = [];
-	this.$.t = [ this.$.func, this.$.args ];
+        this.$.t = [ this.$.func, this.$.args ];
       
 break;
 case 8:
@@ -51,14 +51,14 @@ case 8:
         this.$.node_type = "function_call"
         this.$.func = $$[$0-3];
         this.$.args = $$[$0-1];
-	this.$.t = [ this.$.func, this.$.args ];
+        this.$.t = [ this.$.func, this.$.args ];
       
 break;
 case 9:
         this.$ = new Object();
         this.$.node_type = ".";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 10:
@@ -68,21 +68,21 @@ case 10:
         this.$ = new Object();
         this.$.node_type = ".";
         this.$.targets = [inner, $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 11:
         this.$ = new Object();
         this.$.node_type = "post++";
         this.$.target = $$[$0-1];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 12:
         this.$ = new Object();
         this.$.node_type = "post--";
         this.$.target = $$[$0-1];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 13: this.$ = [$$[$0]]; 
@@ -96,35 +96,35 @@ case 16:
         this.$ = new Object();
         this.$.node_type = "pre++";
         this.$.target = $$[$0];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 17:
         this.$ = new Object();
         this.$.node_type = "pre--";
         this.$.target = $$[$0];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 18:
         this.$ = new Object();
         this.$.node_type = "unary" + $$[$0-1];
         this.$.target = $$[$0];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 19:
         this.$ = new Object();
         this.$.node_type = "sizeof";
         this.$.target = $$[$0];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 20:
         this.$ = new Object();
         this.$.node_type = "sizeof";
         this.$.target = $$[$0-1];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 28:
@@ -132,150 +132,154 @@ case 28:
         this.$.node_type = "typecast";
         this.$.type = $$[$0-2];
         this.$.target = $$[$0];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 30:
         this.$ = new Object();
         this.$.node_type = "*";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 31:
         this.$ = new Object();
         this.$.node_type = "/";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 32:
         this.$ = new Object();
         this.$.node_type = "%";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 34:
         this.$ = new Object();
         this.$.node_type = "+";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 35:
         this.$ = new Object();
         this.$.node_type = "-";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 37:
         this.$ = new Object();
         this.$.node_type = "<<";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 38:
         this.$ = new Object();
         this.$.node_type = ">>";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 40:
         this.$ = new Object();
         this.$.node_type = "<";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 41:
         this.$ = new Object();
         this.$.node_type = ">";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 42:
         this.$ = new Object();
         this.$.node_type = "<=";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 43:
         this.$ = new Object();
         this.$.node_type = ">=";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 45:
         this.$ = new Object();
         this.$.node_type = "==";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 46:
         this.$ = new Object();
         this.$.node_type = "!=";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 48:
         this.$ = new Object();
         this.$.node_type = "&";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 50:
         this.$ = new Object();
         this.$.node_type = "^";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 52:
         this.$ = new Object();
         this.$.node_type = "|";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 54:
         this.$ = new Object();
         this.$.node_type = "&&";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 56:
         this.$ = new Object();
         this.$.node_type = "||";
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 58:
         this.$ = new Object();
         this.$.node_type = "?";
         this.$.targets = [$$[$0-4], $$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
 case 60:
         this.$ = new Object();
         this.$.node_type = $$[$0-1];
         this.$.targets = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.targets ];
+        this.$.t = [ this.$.targets ];
       
 break;
-case 72: this.$ = [$$[$0]]; 
+case 72:
+        this.$ = new Object();
+        this.$.node_type = "expression";
+        this.$.seqs = [$$[$0]];
+      
 break;
 case 73:
         $$[$0-2].push($$[$0]);
@@ -286,7 +290,7 @@ case 75:
         this.$ = new Object();
         this.$.node_type = "decl";
         this.$.type = $$[$0-1];
-	this.$.t = [ this.$.type ];
+        this.$.t = [ this.$.type ];
       
 break;
 case 76:
@@ -294,7 +298,7 @@ case 76:
         this.$.node_type = "decl";
         this.$.type = $$[$0-2];
         this.$.decls = $$[$0-1];
-	this.$.t = [ this.$.type, this.$.decls ];
+        this.$.t = [ this.$.type, this.$.decls ];
       
 break;
 case 77: this.$ = [$$[$0]]; 
@@ -322,24 +326,24 @@ case 86:
 break;
 case 87:
         this.$ = new Object();
-	this.$.node_type = "init_decl";
+        this.$.node_type = "init_decl";
         this.$.name = $$[$0];
-	this.$.t = [ this.$.name ];
+        this.$.t = [ this.$.name ];
       
 break;
 case 88:
         this.$ = new Object();
-	this.$.node_type = "init_decl";
+        this.$.node_type = "init_decl";
         this.$.name = $$[$0-2];
         this.$.value = $$[$0];
-	this.$.t = [ this.$.name, this.$.value ];
+        this.$.t = [ this.$.name, this.$.value ];
       
 break;
 case 107:
         this.$ = new Object();
         this.$.node_type = $$[$0-3];
         this.$.decls = $$[$0-1];
-	this.$.t = [ this.$.decls ];
+        this.$.t = [ this.$.decls ];
       
 break;
 case 108:
@@ -347,7 +351,7 @@ case 108:
         this.$.node_type = $$[$0-4];
         this.$.name = $$[$0-3];
         this.$.decls = $$[$0-1];
-	this.$.t = [ this.$.decls ];
+        this.$.t = [ this.$.decls ];
       
 break;
 case 109:
@@ -366,9 +370,9 @@ break;
 case 114:
         this.$ = new Object();
         this.$.node_type = "struct_field";
-	this.$.members_type = $$[$0-2];
-	this.$.members = $$[$0-1];
-	this.$.t = [ this.$.members_type, this.$.members ];
+        this.$.members_type = $$[$0-2];
+        this.$.members = $$[$0-1];
+        this.$.t = [ this.$.members_type, this.$.members ];
       
 break;
 case 115:
@@ -410,7 +414,7 @@ case 124:
         this.$ = new Object();
         this.$.node_type = "enum";
         this.$.list = $$[$0-1];
-	this.$.t = [ this.$.list ];
+        this.$.t = [ this.$.list ];
       
 break;
 case 125:
@@ -418,14 +422,14 @@ case 125:
         this.$.node_type = "enum";
         this.$.name = $$[$0-3];
         this.$.list = $$[$0-1];
-	this.$.t = [ this.$.list ];
+        this.$.t = [ this.$.list ];
       
 break;
 case 126:
         this.$ = new Object();
         this.$.node_type = "enum";
         this.$.list = $$[$0-2];
-	this.$.t = [ this.$.list ];
+        this.$.t = [ this.$.list ];
       
 break;
 case 127:
@@ -433,7 +437,7 @@ case 127:
         this.$.node_type = "enum";
         this.$.name = $$[$0-4];
         this.$.list = $$[$0-2];
-	this.$.t = [ this.$.list ];
+        this.$.t = [ this.$.list ];
       
 break;
 case 128:
@@ -451,16 +455,16 @@ case 130:
 break;
 case 131:
         this.$ = new Object();
-	this.$.node_type = "enum_entry";
+        this.$.node_type = "enum_entry";
         this.$.name = $$[$0];
       
 break;
 case 132:
         this.$ = new Object();
-	this.$.node_type = "enum_fixed_entry";
+        this.$.node_type = "enum_fixed_entry";
         this.$.name = $$[$0-2];
         this.$.data = $$[$0];
-	this.$.t = [ this.$.data ];
+        this.$.t = [ this.$.data ];
       
 break;
 case 137:
@@ -479,7 +483,7 @@ case 141:
         this.$ = new Object();
         this.$.node_type = "unsized_array_dcl";
         this.$.dcl = $$[$0-2];
-	this.$.t = [ this.$.dcl ];
+        this.$.t = [ this.$.dcl ];
       
 break;
 case 142:
@@ -494,7 +498,7 @@ case 143:
         this.$.node_type = "expr_sized_array_dcl";
         this.$.size_expr = $$[$0-1];
         this.$.dcl = $$[$0-3];
-	this.$.t = [ this.$.size_expr, this.$.dcl ];
+        this.$.t = [ this.$.size_expr, this.$.dcl ];
       
 break;
 case 144:
@@ -532,7 +536,7 @@ case 148:
         this.$ = new Object();
         this.$.node_type = "unsized_array_dcl";
         this.$.dcl = $$[$0-3];
-	this.$.t = [ this.$.dcl ];
+        this.$.t = [ this.$.dcl ];
       
 break;
 case 149:
@@ -540,15 +544,15 @@ case 149:
         this.$.node_type = "function_dcl";
         this.$.dcl = $$[$0-3];
         this.$.params = $$[$0-1];
-	this.$.t = [ this.$.dcl, this.$.params ];
+        this.$.t = [ this.$.dcl, this.$.params ];
       
 break;
 case 150:
         this.$ = new Object();
         this.$.node_type = "function_dcl";
         this.$.dcl = $$[$0-2];
-	this.$.params = [];
-	this.$.t = [ this.$.dcl, this.$.params ];
+        this.$.params = [];
+        this.$.t = [ this.$.dcl, this.$.params ];
       
 break;
 case 151:
@@ -556,7 +560,7 @@ case 151:
         this.$.node_type = "id_function_dcl";
         this.$.dcl = $$[$0-3];
         this.$.param_ids = $$[$0-1];
-	this.$.t = [ this.$.dcl, this.$.param_ids ];
+        this.$.t = [ this.$.dcl, this.$.param_ids ];
       
 break;
 case 152: this.$ = ['*']; 
@@ -578,7 +582,7 @@ case 159:
         this.$ = new Object();
         this.$.node_type = "variadic_params";
         this.$.params = $$[$0-2];
-	this.$.t = [ this.$.params ];
+        this.$.t = [ this.$.params ];
       
 break;
 case 160: this.$ = [$$[$0]]; 
@@ -593,14 +597,14 @@ case 162:
         this.$.node_type = "full_param_dcl";
         this.$.dcl_specs = $$[$0-1];
         this.$.dcl = $$[$0];
-	this.$.t = [ this.$.dcl_specs, this.$.dcl ];
+        this.$.t = [ this.$.dcl_specs, this.$.dcl ];
       
 break;
 case 163:
         this.$ = new Object();
         this.$.node_type = "spec_param_dcl";
         this.$.dcl_specs = $$[$0];
-	this.$.t = [ this.$.dcl_specs ];
+        this.$.t = [ this.$.dcl_specs ];
       
 break;
 case 164:
@@ -779,7 +783,7 @@ case 201:
         this.$.node_type = "labeled_statement";
         this.$.label = $$[$0-2];
         this.$.statement = $$[$0];
-	this.$.t = [ this.$.statement ];
+        this.$.t = [ this.$.statement ];
       
 break;
 case 202:
@@ -787,7 +791,7 @@ case 202:
         this.$.node_type = "case";
         this.$.guard = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t= [ this.$.guard, this.$.body ];
+        this.$.t= [ this.$.guard, this.$.body ];
       
 break;
 case 204:
@@ -799,7 +803,7 @@ case 205:
         this.$ = new Object();
         this.$.node_type = "block";
         this.$.contents = $$[$0-1];
-	this.$.t = [ this.$.contents ];
+        this.$.t = [ this.$.contents ];
       
 break;
 case 206: this.$ = [$$[$0]]; 
@@ -823,7 +827,7 @@ case 214:
         this.$.node_type = "if";
         this.$.cond = $$[$0-2];
         this.$.then = $$[$0];
-	this.$.t = [ this.$.cond, this.$.then ];
+        this.$.t = [ this.$.cond, this.$.then ];
       
 break;
 case 215:
@@ -832,7 +836,7 @@ case 215:
         this.$.cond = $$[$0-4];
         this.$.then = $$[$0-2];
         this.$.else = $$[$0];
-	this.$.t = [ this.$.cond, this.$.then, this.$.else ];
+        this.$.t = [ this.$.cond, this.$.then, this.$.else ];
       
 break;
 case 216:
@@ -840,7 +844,7 @@ case 216:
         this.$.node_type = "switch";
         this.$.param = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.param, this.$.body ];
+        this.$.t = [ this.$.param, this.$.body ];
       
 break;
 case 217:
@@ -848,7 +852,7 @@ case 217:
         this.$.node_type = "while";
         this.$.cond = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.cond, this.$.body ];
+        this.$.t = [ this.$.cond, this.$.body ];
       
 break;
 case 218:
@@ -856,7 +860,7 @@ case 218:
         this.$.node_type = "do_while";
         this.$.cond = $$[$0-2];
         this.$.body = $$[$0-5];
-	this.$.t = [ this.$.cond, this.$.body ];
+        this.$.t = [ this.$.cond, this.$.body ];
       
 break;
 case 219:
@@ -865,7 +869,7 @@ case 219:
         this.$.init = $$[$0-3];
         this.$.cond = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.init, this.$.cond, this.$.body ];
+        this.$.t = [ this.$.init, this.$.cond, this.$.body ];
       
 break;
 case 220:
@@ -875,7 +879,7 @@ case 220:
         this.$.cond = $$[$0-3];
         this.$.action = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.init, this.$.cond, this.$.action, this.$.body ];
+        this.$.t = [ this.$.init, this.$.cond, this.$.action, this.$.body ];
       
 break;
 case 221:
@@ -884,7 +888,7 @@ case 221:
         this.$.init = $$[$0-3];
         this.$.cond = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.init, this.$.cond, this.$.body ];
+        this.$.t = [ this.$.init, this.$.cond, this.$.body ];
       
 break;
 case 222:
@@ -894,14 +898,14 @@ case 222:
         this.$.cond = $$[$0-3];
         this.$.action = $$[$0-2];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.init, this.$.cond, this.$.action, this.$.body ];
+        this.$.t = [ this.$.init, this.$.cond, this.$.action, this.$.body ];
       
 break;
 case 223:
         this.$ = new Object();
         this.$.node_type = "goto";
         this.$.target = $$[$0];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
 case 226:
@@ -913,13 +917,18 @@ case 227:
         this.$ = new Object();
         this.$.node_type = "return";
         this.$.target = $$[$0-1];
-	this.$.t = [ this.$.target ];
+        this.$.t = [ this.$.target ];
       
 break;
-case 228: this.$ = [$$[$0]]; 
+case 228:
+        this.$ = new Object();
+        this.$.node_type = "root"
+        this.$.globals = [$$[$0]];
+        this.$.t = [ this.$.globals ];
+      
 break;
 case 229:
-        $$[$0-1].push($$[$0]);
+        $$[$0-1].globals.push($$[$0]);
         this.$ = $$[$0-1];
       
 break;
@@ -929,7 +938,7 @@ case 232:
         this.$.return_type = $$[$0-2];
         this.$.sig = $$[$0-1];
         this.$.body = $$[$0];
-	this.$.t = [ this.$.return_type, this.$.sig, this.$.body ];
+        this.$.t = [ this.$.return_type, this.$.sig, this.$.body ];
       
 break;
 case 233: 
