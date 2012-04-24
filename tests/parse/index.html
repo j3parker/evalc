@@ -21,13 +21,16 @@ function parsec() {
   var result;
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
+
+  ast_walk(result, well_typed, undefined);
+  console.log("well-typed.");
+
   var to = document.getElementById('parse');
   if(to == null) return;
   if(result != null)
     to.innerHTML = JSON.stringify(result, null, '  ');
   else 
     to.innerHTML = "error";
-  ast_walk(result, walkprint, undefined);
 }
 </script>
 <pre id="parse">

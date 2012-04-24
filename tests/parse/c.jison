@@ -109,8 +109,23 @@
 
 primary_expression
     : IDENTIFIER
+      {
+        $$ = new Object();
+        $$.node_type = "primary_expression_id";
+        $$.expr = $1;
+      }
     | CONSTANT
+      {
+        $$ = new Object();
+        $$.node_type = "primary_expression_const";
+        $$.expr = $1;
+      }
     | STRING_LITERAL
+      {
+        $$ = new Object();
+        $$.node_type = "primary_expression_string";
+        $$.expr = $1;
+      }
     | '(' expression ')' { $$ = $2; }
     ;
 
@@ -151,7 +166,7 @@ postfix_expression
     | postfix_expression PTR_OP IDENTIFIER
       {
         var inner = new Object();
-        inner.node_type = '*';
+        inner.node_type = 'unary*';
         inner.targets = [$1];
         $$ = new Object();
         $$.node_type = ".";
@@ -275,15 +290,15 @@ additive_expression
       {
         $$ = new Object();
         $$.node_type = "+";
-        $$.target = [$1, $3];
-	$$.t = [ $$.target ];
+        $$.targets = [$1, $3];
+	$$.t = [ $$.targets ];
       }
     | additive_expression '-' multiplicative_expression
       {
         $$ = new Object();
         $$.node_type = "-";
-        $$.target = [$1, $3];
-	$$.t = [ $$.target ];
+        $$.targets = [$1, $3];
+	$$.t = [ $$.targets ];
       }
     ;
 

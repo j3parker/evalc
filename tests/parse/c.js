@@ -9,6 +9,24 @@ performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
 switch (yystate) {
+case 1:
+        this.$ = new Object();
+        this.$.node_type = "primary_expression_id";
+        this.$.expr = $$[$0];
+      
+break;
+case 2:
+        this.$ = new Object();
+        this.$.node_type = "primary_expression_const";
+        this.$.expr = $$[$0];
+      
+break;
+case 3:
+        this.$ = new Object();
+        this.$.node_type = "primary_expression_string";
+        this.$.expr = $$[$0];
+      
+break;
 case 4: this.$ = $$[$0-1]; 
 break;
 case 6:
@@ -45,7 +63,7 @@ case 9:
 break;
 case 10:
         var inner = new Object();
-        inner.node_type = '*';
+        inner.node_type = 'unary*';
         inner.targets = [$$[$0-2]];
         this.$ = new Object();
         this.$.node_type = ".";
@@ -141,15 +159,15 @@ break;
 case 34:
         this.$ = new Object();
         this.$.node_type = "+";
-        this.$.target = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.target ];
+        this.$.targets = [$$[$0-2], $$[$0]];
+	this.$.t = [ this.$.targets ];
       
 break;
 case 35:
         this.$ = new Object();
         this.$.node_type = "-";
-        this.$.target = [$$[$0-2], $$[$0]];
-	this.$.t = [ this.$.target ];
+        this.$.targets = [$$[$0-2], $$[$0]];
+	this.$.t = [ this.$.targets ];
       
 break;
 case 37:
