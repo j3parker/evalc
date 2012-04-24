@@ -53,18 +53,19 @@ function get_typeof_id(node, id) {
   return get_typeof_id(node.parent, id);
 }
 
-function assert_typeclass(node, typeclass) {
-  var tc;
-  if(node.type === undefined) // sequence (comma)
-  {
-    tc = node[node.length-1];
-  } else {
-    tc = node;
+function contains(arr, v) {
+  for(var i = 0; i < arr.length; ++i) {
+    if(arr[i] === v)
+      return true;
   }
+  return false;
+}
+
+function assert_typeclass(node, typeclass) {
   switch(typeclass) {
     case INTEGER:
-      if(tc.type != "int") {
-        throw "Type mismatch: Got "+tc.type+", expected integer.";
+      if((node.type.basetype !== "int") || contains(node.type.qualifiers, "*")) {
+        throw "Type mismatch: Got "+node.type.basetype+" base type, expected integer typeclass.";
       }
       break;
   }
@@ -81,6 +82,44 @@ function link_parents(node, accu) {
   return node;
 }
 
+function ridecl_name(decl) {
+  if(typeof(decl.name) === "string") {
+    return decl.name;
+  } else {
+    assert(decl.name.node_type !== undefined);
+    switch(decl.name.node_type) {
+      case "pointer_declarator":
+        return decl.name.direct_decl;
+        break;
+    }
+  }
+  return "unnamed";
+}
+
+function rdecl_basetype(decl) {
+  assert(decl.node_type === "decl");
+  return decl.type[decl.type.length-1];
+}
+
+function rdecl_qualifiers(decl) {
+  assert(decl.node_type === "decl");
+  return decl.type.slice(0, decl.type.length-1);
+}
+
+function ridecl_qualifiers(decl) {
+  if(typeof(decl.name) === "string") {
+    return [];
+  } else {
+    assert(decl.name.node_type !== undefined);
+    switch(decl.name.node_type) {
+      case "pointer_declarator":
+        return decl.name.pointer;
+        break;
+    }
+  }
+  return "unnamed";
+}
+
 function collect_symbols(node, accu) {
   switch(node.node_type) {
     case "root":
@@ -90,10 +129,13 @@ function collect_symbols(node, accu) {
     case "decl":
       if(node.decls !== undefined) {
         for(var i = 0;i < node.decls.length;i++) {
-          if(accu[node.decls[i].name] !== undefined) {
-            throw "Name redefined: "+node.decls[i].name+".";
+          if(accu[ridecl_name(node.decls[i])] !== undefined) {
+            throw "Name redefined: "+ridecl_name(node.decls[i])+".";
           }
-          accu[node.decls[i].name] = node.type;
+          var res = new Object();
+          res.basetype = rdecl_basetype(node);
+          res.qualifiers = rdecl_qualifiers(node).concat(ridecl_qualifiers(node.decls[i]));
+          accu[ridecl_name(node.decls[i])] = res;
         }
       }
       break;
@@ -101,13 +143,23 @@ function collect_symbols(node, accu) {
   return accu;
 }
 
+function int_type_obj() {
+  res = new Object();
+  res.basetype = "int";
+  res.qualifiers = [];
+  return res;
+}
+
 function  well_typed(node, accu) {
   switch(node.node_type) {
-    case "decl":
-      // TODO: typecheck decls.
+    case "expression":
+      node.type = node.seqs[node.seqs.length-1].type;
+      break;
+    case "init_decl":
+      assert_typeclass(node.value, INTEGER);
       break;
     case "primary_expression_const":
-      node.type = "int";
+      node.type = int_type_obj();
       break;
     case "primary_expression_id":
       node.type = get_typeof_id(node, node.expr);
@@ -139,7 +191,7 @@ function  well_typed(node, accu) {
       node.type = node.target.type;
       break;
     case "typecast":
-      // already done in the ast construction. TODO might want to verify cast.
+      //TODO: not even done in parser
       break;
     case "*":
     case "/":
@@ -147,17 +199,17 @@ function  well_typed(node, accu) {
     case ">>":
     case "<<":
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break; 
     case "+":
       //TODO: pointers
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break; 
     case "-":
       //TODO: pointers
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break;
     case "<":
     case ">":
@@ -167,7 +219,7 @@ function  well_typed(node, accu) {
     case "!=":
       //TODO: pointers
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break;
     case "&":
     case "^":
@@ -176,7 +228,7 @@ function  well_typed(node, accu) {
     case "||":
       //TODO: pointers??
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break;
     case "?":
       assert(node.targets[1].type == node.targets[2].type);
@@ -193,13 +245,13 @@ function  well_typed(node, accu) {
     case "^=":
     case "|=":
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break;
     case "+=":
     case "-=":
       //TODO: pointers
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
-      node.type = "int";
+      node.type = int_type_obj();
       break;
   }
 }
@@ -208,9 +260,6 @@ function typecheck(ast) {
   ast_walk_down_b(ast, link_parents, undefined);
   var global_st = Object();
   ast_walk_down_b(ast, collect_symbols, global_st);
-
-  console.log("globals:");
-  console.log(global_st);
 
   ast_walk_up(ast, well_typed, undefined);
 }

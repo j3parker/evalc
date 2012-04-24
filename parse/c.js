@@ -279,10 +279,11 @@ case 72:
         this.$ = new Object();
         this.$.node_type = "expression";
         this.$.seqs = [$$[$0]];
+        this.$.t = [ this.$.seqs ];
       
 break;
 case 73:
-        $$[$0-2].push($$[$0]);
+        $$[$0-2].seqs.push($$[$0]);
         this.$ = $$[$0-2];
       
 break;
