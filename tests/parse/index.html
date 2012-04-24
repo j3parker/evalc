@@ -1,12 +1,13 @@
+<head>
 <script src="codemirror/lib/codemirror.js"></script>
 <script src="clike.js"></script>
 <script src="c.js"></script>
-<script src="json.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js" data-dojo-config="async: true"></script>
 <script src="walk.js"></script>
 <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+</head>
 <body>
 <p>parsing demo</p>
-</body>
 <script type="text/javascript">
 var editor = CodeMirror(document.body, {
                         value: "int main() {\n  return 0;\n}",
@@ -18,19 +19,23 @@ function walkprint(astnode, c) {
   console.log(astnode.node_type);
 }
 function parsec() {
+  require(["dojox/json/ref"], function(ref) {
   var result;
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
 
-  ast_walk(result, well_typed, undefined);
-  console.log("well-typed.");
+  if(typeof(result) == "object") {
+    typecheck(result);
+    console.log("well-typed.");
+  }
 
   var to = document.getElementById('parse');
   if(to == null) return;
   if(result != null)
-    to.innerHTML = JSON.stringify(result, null, '  ');
+    to.innerHTML = ref.toJson(result, true);
   else 
     to.innerHTML = "error";
+  });
 }
 </script>
 <pre id="parse">
@@ -38,3 +43,4 @@ function parsec() {
 <script type="text/javascript">
 parsec();
 </script>
+</body>
