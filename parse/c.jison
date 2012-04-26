@@ -485,34 +485,84 @@ declaration
     : declaration_specifiers ';'
       {
         $$ = new Object();
-        $$.node_type = "decl";
+        $$.node_type = "declaration";
         $$.type = $1;
-        $$.decls = null;
-        $$.t = [ $$.type ];
+        $$.name = '';
+        $$.value = null;
       }
     | declaration_specifiers init_declarator_list ';'
       {
-        $$ = new Object();
-        $$.node_type = "decl";
-        $$.type = $1;
-        $$.decls = $2;
-        $$.t = [ $$.type, $$.decls ];
+        if(typeof $2.node_type !== "undefined") throw { message: "what" };
+        $2.map(function(x) { x.node_type = "declaration";
+                             x.type = $1;
+                           });
+        $$ = $2;
+
       }
     ;
 
 declaration_specifiers
-    : storage_class_specifier { $$ = [$1]; } 
-    | storage_class_specifier declaration_specifiers { $$ = [$1].concat($2); }
-    | type_specifier { $$ = [$1]; }
-    | type_specifier declaration_specifiers { $$ = [$1].concat($2); }
-    | type_qualifier { $$ = [$1]; }
-    | type_qualifier declaration_specifiers { $$ = [$1].concat($2); }
-    | function_specifier { $$ = [$1]; }
-    | function_specifier declaration_specifiers { $$ = [$1].concat($2); }
+    : storage_class_specifier
+      {
+        $$ = new Object();
+        $$.node_type = "type";
+        $$.base_type = [];
+        $$.storage = [$1];
+        $$.qualifiers = [];
+        $$.function_specifiers = [];
+      }
+    | storage_class_specifier declaration_specifiers
+      {
+        $2.storage.push($1);
+        $$ = $2;
+      }
+    | type_specifier
+      {
+        $$ = new Object();
+        $$.node_type = "type";
+        $$.base_type = [$1];
+        $$.storage = [];
+        $$.qualifiers = [];
+        $$.function_specifiers = [];
+      }
+    | type_specifier declaration_specifiers
+      {
+        $2.base_type.push($1);
+        $$ = $2;
+      }
+    | type_qualifier
+      {
+        $$ = new Object();
+        $$.node_type = "type";
+        $$.base_type = [];
+        $$.storage = [];
+        $$.qualifiers = [$1];
+        $$.function_specifiers = [];
+      }
+    | type_qualifier declaration_specifiers
+      {
+        $2.qualifiers.concat($1);
+        $$ = $2;
+      }
+    | function_specifier
+      {
+        $$ = new Object();
+        $$.node_type = "type";
+        $$.base_type = [];
+        $$.storage = [];
+        $$.qualifiers = [];
+        $$.function_specifiers = [$1]; // :P
+      }
+    | function_specifier declaration_specifiers
+      {
+        // This rule is very dubious...
+        $2.function_specifiers.push($1);
+        $$ = $2;
+      }
     ;
 
 init_declarator_list
-    : init_declarator { $$ = [$1]; }
+    : init_declarator { $$ = new Array(); $$.push($1); }
     | init_declarator_list ',' init_declarator
       {
         $1.push($3);
@@ -524,18 +574,14 @@ init_declarator
     : declarator
       {
         $$ = new Object();
-        $$.node_type = "init_decl";
         $$.name = $1;
         $$.value = null;
-        $$.t = [ $$.name ];
       }
     | declarator '=' initializer
       {
         $$ = new Object();
-        $$.node_type = "init_decl";
         $$.name = $1;
         $$.value = $3;
-        $$.t = [ $$.name, $$.value ];
       }
     ;
 
@@ -1149,16 +1195,32 @@ compound_statement
       {
         $$ = new Object();
         $$.node_type = "block";
+        if(typeof $2.node_type !== "undefined") { console.log($2); throw { message: "bad block item list"}; }
         $$.contents = $2;
         $$.t = [ $$.contents ];
       }
     ;
 
 block_item_list
-    : block_item { $$ = [$1]; }
+    : block_item
+      {
+        if(typeof $1.node_type === "undefined") {
+          $$ = $1;
+          if($$[0].node_type !== "declaration") throw {message: "huh" };
+        }
+        else {
+          $$ = new Array(); $$.push($1);
+        }
+      }
     | block_item_list block_item
       {
-        $1.push($2);
+        if(typeof ($2.node_type) === "undefined") {
+          for(var foobarbaz=0; foobarbaz < $2.length; foobarbaz += 1) {
+            $1.push($2[foobarbaz]);
+          }
+        } else {
+          $1.push($2);
+        }
         $$ = $1;
       }
     ;
@@ -1319,22 +1381,22 @@ translation_unit
     ;
 
 external_declaration
-    : function_definition 
+    : function_definition
     | declaration
     ;
 
 function_definition
     : declaration_specifiers declarator compound_statement
-      { 
+      {
         $$ = new Object();
         $$.node_type = "function_definition"
         $$.return_type = $1;
         $$.sig = $2;
         $$.body = $3;
-        $$.t = [ $$.return_type, $$.sig, $$.body ];
+        $$.t = [ $$.body ];
       }
     | declaration_specifiers declarator declaration_list compound_statement
-      { 
+      {
         $$ = new Object();
         $$.node_type = "TODO function_definition";
         $$.return_type = $1;

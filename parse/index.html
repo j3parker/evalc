@@ -4,6 +4,7 @@
 <script src="c.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js" data-dojo-config="async: true"></script>
 <script src="walk.js"></script>
+<script src="../lib/stacktrace/stacktrace.js"></script>
 <link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
 </head>
 <body>
@@ -24,17 +25,21 @@ function parsec() {
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
 
-  if(typeof(result) == "object") {
-    typecheck(result);
-    console.log("well-typed.");
-  }
+//  if(typeof(result) == "object") {
+//    typecheck(result);
+//    console.log("well-typed.");
+//  }
 
   var to = document.getElementById('parse');
   if(to == null) return;
   if(result != null)
     to.innerHTML = ref.toJson(result, true);
-  else 
+  else
     to.innerHTML = "error";
+  if(typeof(result) == "object") {
+    analyze(result);
+    console.log("cool.");
+  }
   });
 }
 </script>

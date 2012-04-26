@@ -25,6 +25,8 @@ function gen_statement(ast, acc) {
       }
       acc.push(mips_return());
       break;
+    default:
+      assert(1==0); // TODO
   }
   return acc;
 }
@@ -63,6 +65,8 @@ function gen_expr(ast, rr, acc) {
     case 'primary_expression_const':
       acc.push(mips_addi(rr, rZERO, ast.expr));
       break;
+    default:
+      assert(1==0); // TODO
   }
   return acc;
 }

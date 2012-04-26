@@ -1,7 +1,4 @@
 function ast_walk_up(ast, f, initacc) {
-  if((typeof(ast) !== "object") && (typeof(ast) !== "array"))
-    return initacc;
-
   if(ast["t"] !== undefined) {
     for(var i = 0; i < ast.t.length; i++) {
       initacc = ast_walk_up(ast.t[i], f, initacc);
@@ -43,8 +40,9 @@ function ast_walk_down_b(ast, f, initacc) {
 var INTEGER = 0;
 
 function get_typeof_id(node, id) {
-  if(node === undefined)
-    return undefined;
+  if(node === undefined) {
+    throw "undeclared identifier: " + id;
+  }
   if(node.node_type === "block") {
     if(node.symbols[id] !== undefined) {
       return node.symbols[id];
@@ -71,9 +69,12 @@ function assert_typeclass(node, typeclass) {
   }
 }
 
-function assert(cond) {
+function assert(cond, msg) {
   if(!cond) {
-    throw "assert failed.";
+    console.log("Assertion from function " + arguments.callee.caller.name + "failed: " + msg);
+    var trace = printStackTrace();
+    console.log(trace.join('\n'));
+    throw false;
   }
 }
 
@@ -121,24 +122,35 @@ function ridecl_qualifiers(decl) {
 }
 
 function collect_symbols(node, accu) {
+  var i, res;
   switch(node.node_type) {
     case "root":
     case "block":
       node.symbols = new Object();
       return node.symbols;
     case "decl":
-      if(node.decls !== undefined) {
-        for(var i = 0;i < node.decls.length;i++) {
-          if(accu[ridecl_name(node.decls[i])] !== undefined) {
-            throw "Name redefined: "+ridecl_name(node.decls[i])+".";
-          }
-          var res = new Object();
-          res.basetype = rdecl_basetype(node);
-          res.qualifiers = rdecl_qualifiers(node).concat(ridecl_qualifiers(node.decls[i]));
-          accu[ridecl_name(node.decls[i])] = res;
+      for(i = 0;i < node.decls.length;i++) {
+        if(accu[ridecl_name(node.decls[i])] !== undefined) {
+          throw "Name redefined: "+ridecl_name(node.decls[i])+".";
         }
+        res = new Object();
+        res.kind = "data";
+        res.basetype = rdecl_basetype(node);
+        res.qualifiers = rdecl_qualifiers(node).concat(ridecl_qualifiers(node.decls[i]));
+        accu[ridecl_name(node.decls[i])] = res;
       }
       break;
+    case "function_definition":
+      res = new Object();
+      res.kind = "function";
+      res.returntype = INTEGER; // TODO
+      res.argtypes = []; // TODO
+      break;
+    case "return":
+
+      break;
+    default:
+      throw "the fuck2 " + node.node_type;
   }
   return accu;
 }
@@ -150,13 +162,26 @@ function int_type_obj() {
   return res;
 }
 
+function void_type_obj() {
+  res = new Object();
+  res.basetype = "void";
+  res.qualifiers = [];
+  return res;
+}
+
 function  well_typed(node, accu) {
   switch(node.node_type) {
     case "expression":
-      node.type = node.seqs[node.seqs.length-1].type;
+      if(node.seqs.length == 0) {
+        node.type = void_type_obj();
+      } else {
+        node.type = node.seqs[node.seqs.length-1].type;
+      }
       break;
     case "init_decl":
-      assert_typeclass(node.value, INTEGER);
+      if(node.value !== null) {
+        assert_typeclass(node.value, INTEGER);
+      }
       break;
     case "primary_expression_const":
       node.type = int_type_obj();
@@ -200,12 +225,12 @@ function  well_typed(node, accu) {
     case "<<":
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
       node.type = int_type_obj();
-      break; 
+      break;
     case "+":
       //TODO: pointers
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
       node.type = int_type_obj();
-      break; 
+      break;
     case "-":
       //TODO: pointers
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
@@ -253,14 +278,137 @@ function  well_typed(node, accu) {
       node.targets.map(function(x){assert_typeclass(x, INTEGER);});
       node.type = int_type_obj();
       break;
+    case "return":
+      if(node.target == null) { node.type == void_type_obj(); }
+      else { node.type = node.target.type; }
+      break;
+    case "if":
+    case "block":
+    case "function_definition":
+    case "root":
+    case "decl":
+      break;
+  }
+}
+
+// Determines if two types are implicitly coercible
+function unifiable(x,y) {
+  return true; // TODO: fix!
+}
+
+function pretty_print_type(t) {
+  return t.base_type[0]; // TODO: finish this!
+}
+
+function make_basic_type(t) {
+  return { node_type: "type",
+           base_type: [t],
+           function_specifiers: [],
+           qualifiers: [],
+           storage: []
+         };
+}
+
+function add_symbol(syms, def) {
+  assert(typeof syms !== "undefined", "parent scope undefined");
+  assert(typeof def.name !== "undefined", "def.vars.name undefined");
+  assert(def.name !== "", "attempted to add an anonymous definition to the symbol table.");
+  if(typeof syms[def.name] === "undefined") { syms[def.name] = def; }
+  else { throw "duplicated definition of " + def.name; }
+}
+
+function find_symbol(node, name) {
+  assert(typeof node !== "undefined", "asked to find a symbol in null");
+  if(typeof node.symbols[name] !== "undefined") {
+    return node.symbols[name];
+  } else {
+    if(node.parent === null) {
+      throw "use of undeclared identifier " + name;
+    } else {
+      console.log('ascending above ' + node.node_type);
+      return find_symbol(node.parent, name);
+    }
+  }
+}
+
+function analyze(node, acc) {
+  var i, newacc;
+  assert(typeof node !== "undefined", "asked to analyze null");
+  assert(typeof node.node_type !== "undefined", "only analyze node_type's");
+  switch(node.node_type) {
+    case "root":
+      node.symbols = new Array();
+      node.parent = null;
+      newacc = { parent_scope: node };
+      for(i = 0; i < node.globals.length; i++) {
+        analyze(node.globals[i], newacc);
+        if(node.globals[i].node_type === "declaration") {
+          if(node.globals[i].name === "") { throw "anonymous global definition: dumb, right?"; }
+          add_symbol(node.symbols, node.globals[i]);
+        }
+      }
+      break;
+    case "function_definition":
+      // TODO: add ourself to the global symbol table in my parent
+      newacc = { expected_return: node.return_type};
+      // TODO: here we should think about our arguments, add them to our symbol table (inside our child block)
+      analyze(node.body, newacc);
+      break;
+    case "block":
+      node.symbols = new Array();
+      node.parent = acc.parent_scope;
+      acc.parent_scope = node;
+      for(i = 0; i < node.contents.length; i++) {
+        if(node.contents[i].node_type === "declaration") {
+          add_symbol(node.symbols, node.contents[i]);
+        } else {
+          analyze(node.contents[i], acc);
+        }
+      }
+      break;
+    case "return":
+      if(node.target === null) {
+        node.type = make_basic_type("void");
+      } else {
+        analyze(node.target, acc);
+        assert(typeof node.target.type !== "undefined", "went into return, got null type?");
+        if(!unifiable(acc.expected_return, node.target.type)) {
+          throw "return: expected " + pretty_print_type(acc.expected_return)
+                          + " got " + pretty_print_type(node.target.type);
+        }
+        node.type = node.target.type; // TODO: more complicated of course
+      }
+      break;
+    case "expression":
+      if(node.seqs.length == 0) {
+        node.type = make_basic_type("void");
+        break;
+      }
+      for(i = 0; i < node.seqs.length; i++) {
+        analyze(node.seqs[i], acc);
+      }
+      node.type = node.seqs[node.seqs.length - 1].type;
+      break;
+    case "primary_expression_const":
+      // TODO: implement actual algorithm described on page 55-56
+      node.type = make_basic_type("int");
+      break;
+    case "primary_expression_id":
+      node.type = find_symbol(acc.parent_scope, node.expr);
+      //console.log('ping');
+      break;
+    default:
+      throw "the fuck? " + node.node_type;
   }
 }
 
 function typecheck(ast) {
   ast_walk_down_b(ast, link_parents, undefined);
-  var global_st = Object();
-  ast_walk_down_b(ast, collect_symbols, global_st);
 
-  ast_walk_up(ast, well_typed, undefined);
+  analyze(ast);
+//  var global_st = Object();
+//  ast_walk_down_b(ast, collect_symbols, global_st);
+
+//  ast_walk_up(ast, well_typed, undefined);
 }
 

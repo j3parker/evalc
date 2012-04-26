@@ -289,37 +289,79 @@ case 73:
 break;
 case 75:
         this.$ = new Object();
-        this.$.node_type = "decl";
+        this.$.node_type = "declaration";
         this.$.type = $$[$0-1];
-        this.$.decls = null;
-        this.$.t = [ this.$.type ];
+        this.$.name = '';
+        this.$.value = null;
       
 break;
 case 76:
-        this.$ = new Object();
-        this.$.node_type = "decl";
-        this.$.type = $$[$0-2];
-        this.$.decls = $$[$0-1];
-        this.$.t = [ this.$.type, this.$.decls ];
+        if(typeof $$[$0-1].node_type !== "undefined") throw { message: "what" };
+        $$[$0-1].map(function(x) { x.node_type = "declaration";
+                             x.type = $$[$0-2];
+                           });
+        this.$ = $$[$0-1];
+
       
 break;
-case 77: this.$ = [$$[$0]]; 
+case 77:
+        this.$ = new Object();
+        this.$.node_type = "type";
+        this.$.base_type = [];
+        this.$.storage = [$$[$0]];
+        this.$.qualifiers = [];
+        this.$.function_specifiers = [];
+      
 break;
-case 78: this.$ = [$$[$0-1]].concat($$[$0]); 
+case 78:
+        $$[$0].storage.push($$[$0-1]);
+        this.$ = $$[$0];
+      
 break;
-case 79: this.$ = [$$[$0]]; 
+case 79:
+        this.$ = new Object();
+        this.$.node_type = "type";
+        this.$.base_type = [$$[$0]];
+        this.$.storage = [];
+        this.$.qualifiers = [];
+        this.$.function_specifiers = [];
+      
 break;
-case 80: this.$ = [$$[$0-1]].concat($$[$0]); 
+case 80:
+        $$[$0].base_type.push($$[$0-1]);
+        this.$ = $$[$0];
+      
 break;
-case 81: this.$ = [$$[$0]]; 
+case 81:
+        this.$ = new Object();
+        this.$.node_type = "type";
+        this.$.base_type = [];
+        this.$.storage = [];
+        this.$.qualifiers = [$$[$0]];
+        this.$.function_specifiers = [];
+      
 break;
-case 82: this.$ = [$$[$0-1]].concat($$[$0]); 
+case 82:
+        $$[$0].qualifiers.concat($$[$0-1]);
+        this.$ = $$[$0];
+      
 break;
-case 83: this.$ = [$$[$0]]; 
+case 83:
+        this.$ = new Object();
+        this.$.node_type = "type";
+        this.$.base_type = [];
+        this.$.storage = [];
+        this.$.qualifiers = [];
+        this.$.function_specifiers = [$$[$0]]; // :P
+      
 break;
-case 84: this.$ = [$$[$0-1]].concat($$[$0]); 
+case 84:
+        // This rule is very dubious...
+        $$[$0].function_specifiers.push($$[$0-1]);
+        this.$ = $$[$0];
+      
 break;
-case 85: this.$ = [$$[$0]]; 
+case 85: this.$ = new Array(); this.$.push($$[$0]); 
 break;
 case 86:
         $$[$0-2].push($$[$0]);
@@ -328,18 +370,14 @@ case 86:
 break;
 case 87:
         this.$ = new Object();
-        this.$.node_type = "init_decl";
         this.$.name = $$[$0];
         this.$.value = null;
-        this.$.t = [ this.$.name ];
       
 break;
 case 88:
         this.$ = new Object();
-        this.$.node_type = "init_decl";
         this.$.name = $$[$0-2];
         this.$.value = $$[$0];
-        this.$.t = [ this.$.name, this.$.value ];
       
 break;
 case 107:
@@ -825,14 +863,31 @@ break;
 case 205:
         this.$ = new Object();
         this.$.node_type = "block";
+        if(typeof $$[$0-1].node_type !== "undefined") { console.log($$[$0-1]); throw { message: "bad block item list"}; }
         this.$.contents = $$[$0-1];
         this.$.t = [ this.$.contents ];
       
 break;
-case 206: this.$ = [$$[$0]]; 
+case 206:
+        if(typeof $$[$0].node_type === "undefined") {
+          this.$ = $$[$0];
+          if(this.$[0].node_type !== "declaration") throw {message: "huh" };
+        }
+        else {
+          this.$ = new Array(); this.$.push($$[$0]);
+        }
+      
 break;
 case 207:
-        $$[$0-1].push($$[$0]);
+        if(typeof ($$[$0].node_type) === "undefined") {
+          console.log('before: ' + $$[$0-1].length + ' adding: ' + $$[$0].length);
+          for(var foobarbaz=0; foobarbaz < $$[$0].length; foobarbaz += 1) {
+            $$[$0-1].push($$[$0][foobarbaz]);
+          }
+          console.log('after: ' + $$[$0-1].length+ '\n');
+        } else {
+          $$[$0-1].push($$[$0]);
+        }
         this.$ = $$[$0-1];
       
 break;
@@ -964,16 +1019,16 @@ case 229:
         this.$ = $$[$0-1];
       
 break;
-case 232: 
+case 232:
         this.$ = new Object();
         this.$.node_type = "function_definition"
         this.$.return_type = $$[$0-2];
         this.$.sig = $$[$0-1];
         this.$.body = $$[$0];
-        this.$.t = [ this.$.return_type, this.$.sig, this.$.body ];
+        this.$.t = [ this.$.body ];
       
 break;
-case 233: 
+case 233:
         this.$ = new Object();
         this.$.node_type = "TODO function_definition";
         this.$.return_type = $$[$0-3];
