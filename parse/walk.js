@@ -389,11 +389,11 @@ function analyze(node, acc) {
       }
       node.type = node.seqs[node.seqs.length - 1].type;
       break;
-    case "primary_expression_const":
+    case "constant":
       // TODO: implement actual algorithm described on page 55-56
       node.type = make_basic_type("int");
       break;
-    case "primary_expression_id":
+    case "identifier":
       node.type = find_symbol(acc.parent_scope, node.expr);
       //console.log('ping');
       break;

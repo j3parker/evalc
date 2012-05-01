@@ -88,13 +88,13 @@
 "?"                   return "?"
 \s+                   /* skip whitespace */
 [a-zA-Z_][a-zA-Z_0-9]* return 'IDENTIFIER'
-"0"[xX][a-fA-F0-9]+[uUlL]?   return 'CONSTANT'
-[0-9]+[eE][-+]?[0-9]+[fFlL]? return 'CONSTANT'
-[0-9]*"."[0-9]+([eE][-+]?[0-9]+)?[fFlL]? return 'CONSTANT'
-[0-9]+"."[0-9]*([eE][-+]?[0-9]+)?[fFlL]? return 'CONSTANT'
-[0-9]+                return 'CONSTANT'
-"L"?"'"(\\.|[^\\'])+"'" return 'CONSTANT'
-"L"?"\""(\\.|[^\\"])*"\"" return 'CONSTANT'
+"0"[xX][a-fA-F0-9]+[uUlL]?   return 'INTEGER'
+[0-9]+[eE][-+]?[0-9]+[fFlL]? return 'FLOATING'
+[0-9]*"."[0-9]+([eE][-+]?[0-9]+)?[fFlL]? return 'FLOATING'
+[0-9]+"."[0-9]*([eE][-+]?[0-9]+)?[fFlL]? return 'FLOATING'
+[0-9]+                return 'INTEGER'
+"L"?"'"(\\.|[^\\'])+"'" return 'CHARACTER'
+"L"?"\""(\\.|[^\\"])*"\"" return 'STRING_LITERAL'
 <<EOF>>               return 'EOF'
 
 /lex
@@ -107,23 +107,45 @@
 
 /* A.2.1 Expressions */
 
+constant
+    : INTEGER
+      {
+        $$ = new Object();
+        $$.node_type = "integer";
+        $$.value = $1;
+      }
+    | FLOATING
+      {
+        $$ = new Object();
+        $$.node_type = "floating";
+        $$.value = $1;
+      }
+    | CHARACTER
+      {
+        $$ = new Object();
+        $$.node_type = "character";
+        $$.value = $1;
+      }
+    // ENUMERATION TODO ???
+    ;
+
 primary_expression
     : IDENTIFIER
       {
         $$ = new Object();
-        $$.node_type = "primary_expression_id";
+        $$.node_type = "identifier";
         $$.expr = $1;
       }
-    | CONSTANT
+    | constant
       {
         $$ = new Object();
-        $$.node_type = "primary_expression_const";
-        $$.expr = $1;
+        $$.node_type = "constant";
+        $$.value = $1;
       }
     | STRING_LITERAL
       {
         $$ = new Object();
-        $$.node_type = "primary_expression_string";
+        $$.node_type = "string_literal";
         $$.expr = $1;
       }
     | '(' expression ')' { $$ = $2; }
@@ -1195,7 +1217,7 @@ compound_statement
       {
         $$ = new Object();
         $$.node_type = "block";
-        if(typeof $2.node_type !== "undefined") { console.log($2); throw { message: "bad block item list"}; }
+        if(typeof $2.node_type !== "undefined") { throw { message: "bad block item list"}; }
         $$.contents = $2;
         $$.t = [ $$.contents ];
       }
@@ -1215,9 +1237,7 @@ block_item_list
     | block_item_list block_item
       {
         if(typeof ($2.node_type) === "undefined") {
-          for(var foobarbaz=0; foobarbaz < $2.length; foobarbaz += 1) {
-            $1.push($2[foobarbaz]);
-          }
+          $1 = $1.concat($2);
         } else {
           $1.push($2);
         }
