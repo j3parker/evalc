@@ -4,6 +4,7 @@
 <script src="c.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js" data-dojo-config="async: true"></script>
 <script src="walk.js"></script>
+<script src="gen.js"></script>
 <script src="../lib/stacktrace/stacktrace.js"></script>
 <link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
 </head>
@@ -19,7 +20,7 @@ var editor = CodeMirror(document.body, {
 function walkprint(astnode, c) {
   console.log(astnode.node_type);
 }
-  var result=null;
+  var parse_tree=null;
 function parsec() {
   require(["dojox/json/ref"], function(ref) {
   try { result = c.parse(editor.getValue()); }
@@ -30,20 +31,31 @@ function parsec() {
 //    console.log("well-typed.");
 //  }
 
-  var to = document.getElementById('parse');
-  if(to == null) return;
-  if(result != null)
-    to.innerHTML = ref.toJson(result, true);
-  else
-    to.innerHTML = "error";
-  if(typeof(result) == "object") {
-    analyze(result, null);
-    console.log("cool.");
+  var parse_pre = document.getElementById('parse');
+  var asm_pre = document.getElementById('asm');
+  var analyze_pre = document.getElementById('analysis');
+  var parse_tree_str, code="", analysis="";
+  try { parse_tree = c.parse(editor.getValue());
+        parse_tree_str = ref.toJson(result, true);
+        try { analyze(parse_tree, null);
+              analysis = "Type checking etc. passed";
+              try { code = gen(parse_tree).join('');
+              } catch(err) { code = "Compiler error: " + err.message; }
+        } catch(err) { analysis = "Analysis error: " + err.message; }
+  } catch(err) {
+    parse_tree_str = "Parse error: " + err.message;
   }
+  parse_pre.innerHTML = parse_tree_str;
+  asm_pre.innerHTML = code;
+  analyze_pre.innerHTML = analysis;
   });
 }
 </script>
-<pre id="parse">
+<pre id="asm">
+</pre>
+<pre id="analysis" style="color: #7777FF">
+</pre>
+<pre id="parse" style="color: #AAAAAA">
 </pre>
 <script type="text/javascript">
 parsec();

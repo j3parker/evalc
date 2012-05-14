@@ -13,8 +13,7 @@ function copy_type(x) {
 
 function assert(cond, msg) {
   if(!cond) {
-    console.log("Assertion from function " + arguments.callee.caller.name + ": " + msg);
-    throw "error";
+    throw { message: "Assertion from function " + arguments.callee.caller.name + ": " + msg  };
   }
 }
 
@@ -42,7 +41,7 @@ function add_symbol(syms, def) {
   assert(typeof def.name !== "undefined", "def.vars.name undefined");
   assert(def.name !== "", "attempted to add an anonymous definition to the symbol table.");
   if(typeof syms[":" + def.name] === "undefined") { syms[":" + def.name] = def; }
-  else { throw "duplicated definition of " + def.name; }
+  else { throw { message: "duplicated definition of " + def.name}; }
 }
 
 function find_symbol(node, name) {
@@ -51,7 +50,7 @@ function find_symbol(node, name) {
     return node.symbols[":" + name];
   } else {
     if(node.parent == null) { // TODO: why does === not work?
-      throw "use of undeclared identifier " + name;
+      throw { message: "use of undeclared identifier " + name };
     } else {
       return find_symbol(node.parent, name);
     }
@@ -71,7 +70,7 @@ function analyze(node, acc) {
       acc = { parent_scope: node, iteration_type: "" };
       for(i = 0; i < node.globals.length; i++) {
         if(node.globals[i].node_type === "declaration") {
-          if(node.globals[i].name === "") { throw "anonymous global definition: dumb, right?"; }
+          if(node.globals[i].name === "") { throw { message: "anonymous global definition: dumb, right?"}; }
           add_symbol(node.symbols, node.globals[i]);
         } else {
           analyze(node.globals[i], acc);
@@ -137,42 +136,42 @@ function analyze(node, acc) {
       if(node.value === null) break;
       analyze(node.value, acc);
       if(!unifiable(node.type, node.value.type)) {
-        throw "bad decl initializer";
+        throw { message: "bad decl initializer" };
       }
       break;
     case "return":
       if(node.target === null) {
         if(!unifiable(acc.expected_return, make_basic_type("void"))) {
-          throw "returning void from non-void function.";
+          throw { message: "returning void from non-void function."};
         }
       } else {
         analyze(node.target, acc);
         assert(typeof node.target.type !== "undefined", "went into return, got null type?");
         if(!unifiable(acc.expected_return, node.target.type)) {
-          throw "return: expected " + pretty_print_type(acc.expected_return)
-                          + " got " + pretty_print_type(node.target.type);
+          throw { message: "return: expected " + pretty_print_type(acc.expected_return)
+                           + " got " + pretty_print_type(node.target.type) };
         }
       }
       break;
     case "break":
       if(acc.iteration_type !== "loop" && acc.iteration_type !== "switch") {
-        throw "break statement not within a loop or switch.";
+        throw { message: "break statement not within a loop or switch." };
       }
       break;
     case "continue":
       if(acc.iteration_type !== "loop") {
-        throw "continue statement not within a loop.";
+        throw { message: "continue statement not within a loop." };
       }
       break;
     case "case":
       if(acc.iteration_type !== "switch") {
-        throw "case label statement not within a switch.";
+        throw { message: "case label statement not within a switch." };
       }
       analyze(node.guard, acc); // TODO: type check this (needs to reduce to integer constant)
       break;
     case "default":
       if(acc.iteration_type !== "switch") {
-        throw "default label statement not within a switch.";
+        throw { message: "default label statement not within a switch."};
       }
       break;
     case "expression":
@@ -188,15 +187,15 @@ function analyze(node, acc) {
     case "function_call":
       analyze(node.func, acc);
       if(typeof node.func.type.return_type === "undefined") {
-        throw "non-function in function call position.";
+        throw { message: "non-function in function call position."};
       }
       if(node.func.type.params.length !== node.args.length) { // TODO: varargs
-        throw "number of arguments mismatch.";
+        throw { message: "number of arguments mismatch."};
       }
       for(i = 0; i < node.args.length; i++) {
         analyze(node.args[i], acc);
         if(!unifiable(node.args[i].type, node.func.type.params[i].type)) {
-          throw "type mismatch in function call.";
+          throw { message: "type mismatch in function call."};
         }
       }
       node.type = copy_type(node.func.type.return_type);
@@ -214,7 +213,7 @@ function analyze(node, acc) {
       analyze(node.targets[0], acc);
       analyze(node.targets[1], acc);
       if(!unifiable(node.targets[0].type, node.targets[1].type)) {
-        throw "bad binop types.";
+        throw {message: "bad binop types."};
       }
       node.type = copy_type(node.targets[0].type);
       node.type.lvalue = false;
@@ -226,33 +225,33 @@ function analyze(node, acc) {
       analyze(node.target, acc);
       node.type = copy_type(node.target.type);
       if(node.type.lvalue !== true) {
-        throw "non-lvalue in increment/decrement.";
+        throw { message: "non-lvalue in increment/decrement."};
       }
       break;
     case "=":
       analyze(node.targets[0], acc);
       if(node.targets[0].type.lvalue !== true) {
-        throw "non-lvalue in assignment.";
+        throw {message: "non-lvalue in assignment."};
       }
       analyze(node.targets[1], acc);
       if(!unifiable(node.targets[0].type, node.targets[1].type)) {
-        throw "assignment types mismatch.";
+        throw {message: "assignment types mismatch."};
       }
       node.type = copy_type(node.targets[1].type);
       node.type.lvalue = false;
       break;
     case "unary*":
-      throw "sorry, no pointers yet!";
+      throw {message: "sorry, no pointers yet!"};
       analyze(node.target, acc);
       // TODO: make sure node.type could be a pointer value
       // TODO: node.type should be made from node.target.type...
       node.type.lvalue = true;
       break;
     case "unary&":
-      throw "sorry, no pointers yet!";
+      throw {message: "sorry, no pointers yet!"};
       analyze(node.target, acc);
       if(node.target.type.lvalue !== true) {
-        throw "expected lvalue";
+        throw { message: "expected lvalue"};
       }
       // TODO: construct node.type from node.target.type
       node.type.lvalue = false;
@@ -265,6 +264,6 @@ function analyze(node, acc) {
       node.type.lvalue = true;
       break;
     default:
-      throw "the fuck? " + node.node_type;
+      throw {message: "analysis error: TODO: " + node.node_type };
   }
 }
