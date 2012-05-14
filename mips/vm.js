@@ -327,7 +327,6 @@ function handle_io(loc, data) {
         };
       }
       vm.console.putc(String.fromCharCode(data));
-      console.log('putting ' + data);
       break;
     case VM_CONSOLE_CHAR_IN :
       if(typeof vm.console === "undefined") {
