@@ -41,8 +41,14 @@ var opADD     = 0x20,
     opSRA     = 0x03,
     opSRL     = 0x02,
     opSRLV    = 0x06,
-    opSUB     = 0x12,
+    opSUB     = 0x22,
     opSUBU    = 0x13,
     opSYSCALL = 0x0C,
     opXOR     = 0x26;
-var opPUTC    = 0x01; // custom opcodes
+var opPUTC    = 0x01, // custom opcodes
+    opRET     = 0x05,
+    opCALL    = 0x12;
+
+var regSP = 29,
+    regFP = 30,
+    regLR = 31;

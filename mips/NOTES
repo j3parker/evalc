@@ -1,0 +1,26 @@
+addi $30, $0, end
+srl $30, $30, 2
+add $29, $0, $30
+addi $2, $0, 35
+call fib
+beq $0, $0, -1
+
+fib:
+add $6, $0, $2
+addi $7, $0, 2
+slt $7, $6, $7
+beq $0, $7, endif_0
+ret $6
+endif_0: 
+addi $7, $0, 1
+sub $2, $6, $7
+call fib
+add $7, $0, $1
+addi $8, $0, 2
+sub $2, $6, $8
+call fib
+add $8, $0, $1
+add $7, $7, $8
+ret $7
+end:
+

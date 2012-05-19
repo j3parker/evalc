@@ -26,7 +26,8 @@ function disasm(instr) {
 		else
 			return "sll $" + rd(instr) + ", $" + rt(instr) + ", " + h(instr);
 		break;
-        case opPUTC:   return "putc $" + rs(instr);
+        case opRET:     return "ret $" + rs(instr);
+        case opPUTC:    return "putc $" + rs(instr);
         case opSLLV:    return "sslv $" + rd(instr) + ", $" + rt(instr) + ", $" + rs(instr);
         case opSLT:     return "slt $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
         case opSLTU:    return "sltu $" + rd(instr) + ", $" + rs(instr) + ", $" + rt(instr);
@@ -55,6 +56,7 @@ function disasm(instr) {
     case opBGTZ:   return "bgtz $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opBLEZ:   return "blez $" + rs(instr) + ", 0x" + imm(instr).toString(16);
     case opBNE:    return "bne $" + rs(instr) + ", $" + rt(instr) + ", 0x" + imm(instr).toString(16);
+    case opCALL:   return "call 0x" + target(instr).toString(16);
     case opJ:      return "j 0x" + target(instr).toString(16);
     case opJAL:    return "jal 0x" + target(instr).toString(16);
     case opLB:     return "lb $" + rt(instr) + ", 0x" + imm(instr).toString(16) + "($" + rs(instr) + ")";

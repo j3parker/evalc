@@ -48,7 +48,7 @@ function do_assemble() {
 }
 
 function do_reset() {
-  vm = make_vm(32);
+  vm = make_vm(1024);
   vm.console = con;
   con.flush();
   make_RAM_table(vm, document.getElementById('RAM'));
@@ -79,7 +79,7 @@ function do_faster() {
   run_length /= 2;
   clearInterval(run_handle);
   run_handle = setInterval(do_step, run_length);
-  if(run_length <= 10) document.getElementById('faster').style.visibility = 'hidden';
+  if(run_length <= 1) document.getElementById('faster').style.visibility = 'hidden';
 }
 
 function do_stop() {

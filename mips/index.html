@@ -87,7 +87,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById('asm'),
                           firstLineNumber: 0,
                           indentUnit: 2,
                         });
-vm = make_vm(32);
+vm = make_vm(1024);
 vm.console = con;
 make_RAM_table(vm, document.getElementById('RAM'));
 

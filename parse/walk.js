@@ -79,18 +79,19 @@ function analyze(node, acc) {
       break;
     case "function_definition":
       add_symbol(acc.parent_scope.symbols, node);
-      node.body.symbols = new Object();
-      newacc = { parent_scope: acc.parent_scope, expected_return: node.type.return_type };
+      node.symbols = new Object();
+      node.parent = acc.parent_scope;
+      newacc = { parent_scope: node, expected_return: node.type.return_type };
       for(i = 0; i < node.type.params.length; i++) {
         if(node.type.params[i].node_type !== "param") {
           throw { message: "bad param for function" };
         }
-        add_symbol(node.body.symbols, node.type.params[i]);
+        add_symbol(node.symbols, node.type.params[i]);
       }
       analyze(node.body, newacc);
       break;
     case "block":
-      if(typeof node.symbols === "undefined") node.symbols = new Object();
+      node.symbols = new Object();
       node.parent = acc.parent_scope;
       var oldparent = acc.parent_scope;
       acc.parent_scope = node;

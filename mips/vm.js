@@ -94,7 +94,7 @@ function program_ram(vm, loc, op) {
 }
 
 function step(vm, n) {
-  var dirty = { ram: [], reg: [] },
+  var dirty = { ram: new Array(), reg: [] },
       oldpc = vm.pc,
       data,
       loc,
@@ -134,7 +134,7 @@ function step(vm, n) {
       };
     }
     write_mem = false;
-    
+
     instr = vm.RAM[vm.pc];
     rsx = (instr&0x3E00000)>>>21;
     rtx = (instr&0x1F0000)>>>16;
@@ -171,7 +171,24 @@ function step(vm, n) {
           case opPUTC:
             loc = VM_CONSOLE_CHAR_OUT;
             data = vm.regs[rsx];
-            write_mem = true; 
+            write_mem = true;
+            break;
+          case opRET:
+            vm.pc = vm.regs[regLR] - 1;
+            var oldfp = vm.regs[regFP];
+            var retval = vm.regs[rsx];
+            for(var i = 6; i < 32; i++) {
+              if(vm.RAMState[oldfp - i + 5] !== RAM_STACK) {
+                throw {
+                  message: "Bad stack pointer on ret.",
+                  fatal: true
+                };
+              }
+              vm.regs[32 - i + 5] = vm.RAM[oldfp - i + 5];
+              vm.RAMState[oldfp - i + 5] = RAM_UNALLOC;
+              dirty.ram.push(oldfp - i + 5);
+            }
+            vm.regs[1] = retval;
             break;
           case opSLL: vm.regs[rdx] = vm.regs[rtx] << h(instr); break;
           case opSLLV: vm.regs[rdx] = vm.regs[rtx] << vm.regs[rsx]; break;
@@ -222,20 +239,39 @@ function step(vm, n) {
         break;
       case opADDIU: vm.regs[rtx] = vm.regs[rsx] + immx; break;
       case opANDI: vm.regs[rtx] = vm.regs[rsx] & immx; break;
+      case opCALL:
+        var newLR = vm.pc + 1;
+        vm.pc = (vm.pc & 0xF0000000) | target(instr)/4;
+        for(var i = 6; i < 32; i++) {
+          var loc = vm.regs[regSP] + i - 6;
+          if(vm.RAMState[loc] !== RAM_UNALLOC) {
+            throw {
+              message: "On call, invalid stack pointer.",
+              fatal: true
+            };
+          }
+          vm.RAM[loc] = vm.regs[i];
+          vm.RAMState[loc] = RAM_STACK;
+          dirty.ram.push(loc);
+        }
+        vm.regs[regSP] += 26;
+        vm.regs[regFP] = vm.regs[regSP];
+        vm.regs[regLR] = newLR;
+        break;
       case opBEQ: if(vm.regs[rsx] === vm.regs[rtx]) { vm.pc += immx; } break;
       case opBGTZ: if(tc32_to_untyped(vm.regs[rsx]) > 0) { vm.pc += immx; } break;
       case opBLEZ: if(tc32_to_untyped(vm.regs[rsx]) < 0) { vm.pc += immx; } break;
       case opBNE: if(vm.regs[rsx] !== vm.regs[rtx]) { vm.pc += immx; } break;
       case opJ: vm.pc = (vm.pc & 0xF0000000) | target(instr)/4; break;
       case opJAL:
-        vm.regs[31] = vm.pc + 1;
+        vm.regs[regLR] = vm.pc + 1;
         vm.pc = (vm.pc & 0xF0000000) | target(instr)/4;
         break;
       case opLB:
         loc = vm.regs[rsx] + immx;
         var wloc = Math.floor(loc/4);
         vm.regs[rtx] = (vm.RAM[wloc] & (0xFF<<(8*(3-loc%4))))>>((3-loc%4)*8);
-        // TODO: err, this is probably backwards, also check out .string
+        // TODO: err, this is possibly backwards, also check out .string
         break;
       case opLUI: vm.regs[rtx] = immx << 16; break;
       case opLW:
@@ -281,8 +317,8 @@ function step(vm, n) {
           fatal: true
         };
     }
-    
-    dirty.ram = [oldpc, vm.pc];
+    dirty.ram.push(oldpc);
+    dirty.ram.push(vm.pc);
     if(write_mem) {
       if(loc >= VM_DEVICE_START) {
         handle_io(loc, data);

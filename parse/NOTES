@@ -1,0 +1,25 @@
+Types
+-----------
+[Signed Integer] = signed char, short int, int, long int, long long int
+[Unsigned Integer] = _Bool, unsigned char, unsigned short int, unsigned int, unsigned long int, unsigned long long int
+[Standard Integer] = [Signed Integer], [Unsigned Integer]
+[Real Floating] = float, double, long double
+[Complex Floating] = float _Complex, double _Complex, long double _Complex
+[Basic] = char, [Standard Integer], [Real Floating], [Complex Floating]
+[Character] = char, signed char, unsigned char
+[Enumerated] = each use of enum
+[Integer] = char, [Standard Integer], [Enumerated]
+[Real] = [Integer], [Real Floating]
+[Arithmetic] = [Real], [Complex Floating]
+[Aggregate] = [Arithmetic], [Pointer]
+
+
+Register Usage
+----------
+0     Constant 0
+1     Return value
+2-5   Arguments
+6-28  Temporaries
+29    Stack pointer
+30    Frame pointer
+31    Return address

@@ -12,7 +12,8 @@
 <p>parsing demo</p>
 <script type="text/javascript">
 var editor = CodeMirror(document.body, {
-                        value: "int fib(int n) {\n  if(n < 2) return n;\n  return fib(n - 1) + fib(n - 2);\n}\n\nint fib2(int n) {\n  if(n < 2) return n;\n  int p = 0;\n  int pp = 1;\n  int x = 1;\n  while(++x <= n) {\n    int tmp = p;\n    p = pp;\n    pp = pp + tmp;\n  }\n  return pp;\n}",
+                        value: "int fib(int n) {\n  if(n < 2) return n;\n  return fib(n - 1) + fib(n - 2);\n}\n\nint main() {\n  return fib(2+10);\n}",
+                               //"int fib2(int n) {\n  if(n < 2) return n;\n  int p = 0;\n  int pp = 1;\n  int x = 1;\n  while(++x <= n) {\n    int tmp = p;\n    p = pp;\n    pp = pp + tmp;\n  }\n  return pp;\n}",
                         mode: "text/x-csrc",
                         lineNumbers: true,
                         onChange: parsec
@@ -25,11 +26,6 @@ function parsec() {
   require(["dojox/json/ref"], function(ref) {
   try { result = c.parse(editor.getValue()); }
   catch (err) { result = err.message; }
-
-//  if(typeof(result) == "object") {
-//    typecheck(result);
-//    console.log("well-typed.");
-//  }
 
   var parse_pre = document.getElementById('parse');
   var asm_pre = document.getElementById('asm');
