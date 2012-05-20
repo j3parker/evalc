@@ -1,0 +1,6 @@
+[submodule "lib/codemirror"]
+	path = lib/codemirror
+	url = https://github.com/marijnh/CodeMirror2.git
+[submodule "lib/jquery"]
+	path = lib/jquery
+	url = https://github.com/jquery/jquery.git

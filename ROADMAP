@@ -1,0 +1,8 @@
+- Clean up directory structure. ui/index2.html becomes main page
+- Clean up/modularize the code
+- Figure out what to do with the console
+  - Termlib.js has deficincies (can't resize, scrollback)
+  - How to format and display errors?
+- Code gen for assignment expressions
+- AST for array decls, analysis + code gen for pointers
+- AST for function prototypes, analysis for them
