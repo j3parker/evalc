@@ -7,3 +7,6 @@
 [submodule "lib/jcc"]
 	path = lib/jcc
 	url = git@github.com:j3parker/jcc.git
+[submodule "lib/less"]
+	path = lib/less
+	url = https://github.com/cloudhead/less.js.git
