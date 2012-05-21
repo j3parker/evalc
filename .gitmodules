@@ -10,3 +10,6 @@
 [submodule "lib/less"]
 	path = lib/less
 	url = https://github.com/cloudhead/less.js.git
+[submodule "lib/mips"]
+	path = lib/mips
+	url = git@github.com:j3parker/mipsjs.git
