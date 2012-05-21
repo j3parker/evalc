@@ -1,18 +1,21 @@
-<script type="text/javascript" src="../lib/jquery.js"></script>
-<script type="text/javascript" src="splitter.js"></script>
-<link rel="stylesheet/less" type="text/css" href="styles/theme.less">
-<link rel="stylesheet" href="../lib/console/style2.css" type="text/css">
-<link rel="stylesheet/less" type="text/css" href="styles/codemirror.less">
-<link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
-<script src="../lib/codemirror/lib/codemirror.js"></script>
-<script src="../styles/codemirror/clike.js"></script>
-<script src="../styles/codemirror/mips.js"></script>
-<script src="less.js" type="text/javascript"></script>
-<script src="ui.js" type="text/javascript"></script>
+<script type="text/javascript" src="lib/jquery/dist/jquery.min.js"></script>
 
-<script src="../parse/c.js" type="text/javascript"></script>
-<script src="../parse/walk.js" type="text/javascript"></script>
-<script src="../parse/gen.js" type="text/javascript"></script>
+<script type="text/javascript" src="lib/splitter/splitter.js"></script>
+
+<link rel="stylesheet/less" type="text/css" href="styles/theme.less">
+
+<link rel="stylesheet/less" type="text/css" href="styles/codemirror.less">
+<link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
+<script src="lib/codemirror/lib/codemirror.js"></script>
+<script src="styles/codemirror/clike.js"></script>
+<script src="styles/codemirror/mips.js"></script>
+
+<script src="lib/less/dist/less-1.3.0.min.js"></script>
+
+<script src="lib/jcc/c.js"></script> <!-- TODO: remove this --!>
+<script src="lib/jcc/jcc.js"></script>
+<script src="lib/mips/mips.js"></script>
+
 <style>
 body {
   margin: 0;
@@ -49,8 +52,19 @@ body {
 }
 </style>
 <script>
+var compiler = JCC();
 var editor;
-$().ready(function(){
+function handle_code() {
+  mipsviewer.setValue('');
+  try {
+    compiler.compile(editor.getValue());
+  } catch(err) {
+    // TODO
+    return;
+  }
+  mipsviewer.setValue(compiler.asm);
+}
+$().ready(function() {
   $('#ConsoleSplitter').splitter(
     { splitHorizontal: true,
       resizeTo: window});
@@ -76,7 +90,6 @@ $().ready(function(){
                             indentUnit: 2 });
   mipsviewer.getScrollerElement().style.height = '100%';
   editor.refresh();
-  mipsviewer.refresh();
   handle_code();
 });
 </script>
