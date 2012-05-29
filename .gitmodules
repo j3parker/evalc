@@ -6,10 +6,10 @@
 	url = https://github.com/jquery/jquery.git
 [submodule "lib/jcc"]
 	path = lib/jcc
-	url = git@github.com:j3parker/jcc.git
+	url = https://github.com/j3parker/jcc.git
 [submodule "lib/less"]
 	path = lib/less
 	url = https://github.com/cloudhead/less.js.git
 [submodule "lib/mips"]
 	path = lib/mips
-	url = git@github.com:j3parker/mipsjs.git
+	url = https://github.com/j3parker/mipsjs.git
