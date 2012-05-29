@@ -3,7 +3,7 @@ srl $30, $30, 2
 add $29, $0, $30
 addi $2, $0, 35
 call fib
-beq $0, $0, -1
+halt
 
 fib:
 add $6, $0, $2

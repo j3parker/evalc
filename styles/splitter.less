@@ -1,11 +1,3 @@
-@import "theme.less";
-
-body {
-  background-color: @ThemeBackground;
-  overflow:hidden; /* HACK: disable elastic scrolling in safari */
-  color: @ThemeForeground;
-/*  padding: 1em;*/
-}
 
 /*
  * Splitter container. Set this to the desired width and height
@@ -56,23 +48,4 @@ body {
  * mouse is over the splitter or the splitter is focused
  * via the keyboard taborder or an accessKey. 
  */
-#MySplitter .hsplitbar {
-  height: 10px;
-  background: @ThemeSelection url(hgrabber.gif) no-repeat center;
-  /* No margin, border, or padding allowed */
-}
 
-.CodeMirror {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999;
-  margin: 0;
-  padding: 0;
-  border: 0px solid #BBBBBB;
-  opacity: 1;
-  font-size: 12pt;
-}
